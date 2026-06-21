@@ -1,0 +1,79 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.padArea {
+  width: 100%;
+  height: 300rpx;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  background: $color-bg-section;
+  margin-bottom: $spacing-md;
+  position: relative;
+}
+
+.placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  pointer-events: none;
+}
+
+.signatureImg {
+  width: 100%;
+  height: 100%;
+}
+
+.signatureDisplay {
+  width: 100%;
+  height: 100%;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.btn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnPrimary {
+  background: $color-primary;
+  color: $color-text-white;
+}
+
+.btnSecondary {
+  background: $color-bg-hover;
+  color: $color-text-primary;
+}

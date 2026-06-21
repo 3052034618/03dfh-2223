@@ -1,0 +1,215 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $spacing-lg $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 160rpx);
+}
+
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.stepItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.stepCircle {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+
+  &.done {
+    background: $color-success;
+    color: $color-text-white;
+  }
+
+  &.pending {
+    background: $color-bg-hover;
+    color: $color-text-tertiary;
+  }
+}
+
+.stepLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+
+  .active &, .done & {
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.stepLine {
+  position: absolute;
+  top: 28rpx;
+  left: 60%;
+  width: 80%;
+  height: 4rpx;
+  background: $color-border;
+  z-index: 0;
+
+  .done & {
+    background: $color-success;
+  }
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.cardTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.titleIcon {
+  font-size: 36rpx;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  text-align: right;
+  flex: 1;
+  margin-left: $spacing-lg;
+}
+
+.productBlock {
+  background: linear-gradient(135deg, rgba(22, 93, 255, 0.08) 0%, rgba(64, 128, 255, 0.08) 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.productName {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.productMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.metaBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.metaValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.metaLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.tempZoneBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-sm $spacing-md;
+  background: $color-temp-normal-bg;
+  color: $color-temp-normal;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.tempIcon {
+  font-size: 28rpx;
+  margin-right: $spacing-xs;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + $spacing-md);
+  background: $color-bg-card;
+  box-shadow: $shadow-float;
+}
+
+.nextBtn {
+  width: 100%;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+
+  &.disabled {
+    background: $color-bg-hover;
+    color: $color-text-disabled;
+  }
+}

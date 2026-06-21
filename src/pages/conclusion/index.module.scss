@@ -1,0 +1,375 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $spacing-lg $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 160rpx);
+}
+
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.stepItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.stepCircle {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+
+  &.done {
+    background: $color-success;
+    color: $color-text-white;
+  }
+
+  &.pending {
+    background: $color-bg-hover;
+    color: $color-text-tertiary;
+  }
+}
+
+.stepLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+
+  .active &, .done & {
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.stepLine {
+  position: absolute;
+  top: 28rpx;
+  left: 60%;
+  width: 80%;
+  height: 4rpx;
+  background: $color-border;
+  z-index: 0;
+
+  .done & {
+    background: $color-success;
+  }
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.titleIcon {
+  font-size: 36rpx;
+}
+
+.conclusionOptions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.conclusionOption {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-lg;
+  transition: all $transition-base;
+
+  &.active {
+    border-color: $color-primary;
+    background: $color-primary-bg;
+  }
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.optionRadio {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 3rpx solid $color-border;
+  margin-right: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  .active & {
+    border-color: $color-primary;
+    background: $color-primary;
+  }
+}
+
+.radioInner {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: $color-text-white;
+  opacity: 0;
+  transition: all $transition-base;
+
+  .active & {
+    opacity: 1;
+  }
+}
+
+.optionContent {
+  flex: 1;
+}
+
+.optionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.optionDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.optionColor {
+  width: 16rpx;
+  height: 60rpx;
+  border-radius: 8rpx;
+}
+
+.boxSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.boxRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.boxLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.boxCounter {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.counterBtn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: $color-bg-hover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xl;
+  color: $color-text-primary;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+
+  &.disabled {
+    opacity: 0.4;
+  }
+}
+
+.counterValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  min-width: 80rpx;
+  text-align: center;
+}
+
+.diffDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  margin-top: $spacing-md;
+}
+
+.diffLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-right: $spacing-sm;
+}
+
+.diffValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+
+  &.zero {
+    color: $color-text-tertiary;
+  }
+
+  &.positive {
+    color: $color-success;
+  }
+
+  &.negative {
+    color: $color-error;
+  }
+}
+
+.photoSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.photoHint {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-md;
+}
+
+.remarkSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.remarkInput {
+  width: 100%;
+  min-height: 160rpx;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  box-sizing: border-box;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + $spacing-md);
+  background: $color-bg-card;
+  box-shadow: $shadow-float;
+  display: flex;
+  gap: $spacing-md;
+}
+
+.btn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnSecondary {
+  background: $color-bg-hover;
+  color: $color-text-primary;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+
+  &.disabled {
+    background: $color-bg-hover;
+    color: $color-text-disabled;
+  }
+}
+
+.summaryCard {
+  background: linear-gradient(135deg, rgba(22, 93, 255, 0.08) 0%, rgba(64, 128, 255, 0.08) 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.summaryLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.summaryValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}

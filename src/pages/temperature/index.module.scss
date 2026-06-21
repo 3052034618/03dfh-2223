@@ -1,0 +1,230 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $spacing-lg $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 160rpx);
+}
+
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.stepItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.stepCircle {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+
+  &.done {
+    background: $color-success;
+    color: $color-text-white;
+  }
+
+  &.pending {
+    background: $color-bg-hover;
+    color: $color-text-tertiary;
+  }
+}
+
+.stepLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+
+  .active &, .done & {
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.stepLine {
+  position: absolute;
+  top: 28rpx;
+  left: 60%;
+  width: 80%;
+  height: 4rpx;
+  background: $color-border;
+  z-index: 0;
+
+  .done & {
+    background: $color-success;
+  }
+}
+
+.overallCard {
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+  box-shadow: $shadow-card;
+
+  &.normal {
+    background: linear-gradient(135deg, $color-temp-normal 0%, #1fd655 100%);
+  }
+
+  &.warning {
+    background: linear-gradient(135deg, $color-temp-warning 0%, #ff9a33 100%);
+  }
+
+  &.abnormal {
+    background: linear-gradient(135deg, $color-temp-abnormal 0%, #ff6b6b 100%);
+  }
+}
+
+.overallIcon {
+  font-size: 80rpx;
+  line-height: 1;
+  margin-bottom: $spacing-sm;
+}
+
+.overallStatus {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+}
+
+.overallDesc {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.overviewRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.overviewItem {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.overviewValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.overviewLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  padding-left: $spacing-xs;
+}
+
+.legendRow {
+  display: flex;
+  gap: $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.legendDot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+
+  &.normal {
+    background: $color-temp-normal;
+  }
+
+  &.warning {
+    background: $color-temp-warning;
+  }
+
+  &.abnormal {
+    background: $color-temp-abnormal;
+  }
+}
+
+.legendText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + $spacing-md);
+  background: $color-bg-card;
+  box-shadow: $shadow-float;
+  display: flex;
+  gap: $spacing-md;
+}
+
+.btn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.btnSecondary {
+  background: $color-bg-hover;
+  color: $color-text-primary;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+}

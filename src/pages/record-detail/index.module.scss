@@ -1,0 +1,217 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $spacing-lg $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 32rpx);
+}
+
+.statusCard {
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+  box-shadow: $shadow-card;
+
+  &.normal {
+    background: linear-gradient(135deg, $color-temp-normal 0%, #1fd655 100%);
+  }
+
+  &.warning {
+    background: linear-gradient(135deg, $color-temp-warning 0%, #ff9a33 100%);
+  }
+
+  &.abnormal {
+    background: linear-gradient(135deg, $color-temp-abnormal 0%, #ff6b6b 100%);
+  }
+}
+
+.statusIcon {
+  font-size: 80rpx;
+  line-height: 1;
+  margin-bottom: $spacing-sm;
+}
+
+.statusText {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+}
+
+.conclusionTag {
+  display: inline-block;
+  padding: $spacing-xs $spacing-md;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  backdrop-filter: blur(10rpx);
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.cardTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.titleIcon {
+  font-size: 36rpx;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  text-align: right;
+  flex: 1;
+  margin-left: $spacing-lg;
+}
+
+.photosSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.photosGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.photoItem {
+  width: calc((100% - 32rpx) / 3);
+  aspect-ratio: 1;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.photoImg {
+  width: 100%;
+  height: 100%;
+  border-radius: $radius-md;
+}
+
+.emptyPhotos {
+  text-align: center;
+  padding: $spacing-xl;
+  color: $color-text-tertiary;
+  font-size: $font-size-md;
+}
+
+.remarkSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.remarkContent {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.8;
+  background: $color-bg-section;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+}
+
+.emptyRemark {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  font-style: italic;
+}
+
+.signatureSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.signatureInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.driverName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.confirmedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  background: $color-temp-normal-bg;
+  color: $color-temp-normal;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.signatureImg {
+  width: 100%;
+  height: 200rpx;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+}
+
+.boxDiffTag {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-xs;
+  font-weight: $font-weight-medium;
+
+  &.zero {
+    background: $color-bg-hover;
+    color: $color-text-secondary;
+  }
+
+  &.positive {
+    background: $color-temp-normal-bg;
+    color: $color-temp-normal;
+  }
+
+  &.negative {
+    background: $color-temp-abnormal-bg;
+    color: $color-temp-abnormal;
+  }
+}

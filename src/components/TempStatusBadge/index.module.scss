@@ -1,0 +1,44 @@
+@use '@/styles/variables.scss' as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+
+  &.normal {
+    background: $color-temp-normal-bg;
+    color: $color-temp-normal;
+  }
+
+  &.warning {
+    background: $color-temp-warning-bg;
+    color: $color-temp-warning;
+  }
+
+  &.abnormal {
+    background: $color-temp-abnormal-bg;
+    color: $color-temp-abnormal;
+  }
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: $spacing-xs;
+
+  .normal & {
+    background: $color-temp-normal;
+  }
+
+  .warning & {
+    background: $color-temp-warning;
+  }
+
+  .abnormal & {
+    background: $color-temp-abnormal;
+  }
+}
