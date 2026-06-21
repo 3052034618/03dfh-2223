@@ -7,9 +7,7 @@ import type { AbnormalSegment, ProductAppearance, AbnormalReview } from '@/types
 import {
   formatTime,
   formatDuration,
-  formatTemp,
-  getProductAppearanceLabel,
-  getProductAppearanceColor
+  formatTemp
 } from '@/utils/format'
 
 interface AbnormalReviewModalProps {
@@ -190,7 +188,7 @@ const AbnormalReviewModal: React.FC<AbnormalReviewModalProps> = ({
               className={styles.textarea}
               placeholder="请输入对该异常片段的复核说明，如货品检查情况等"
               value={reviewNote}
-              maxLength={200}
+              maxlength={200}
               onInput={(e) => setReviewNote(e.detail.value)}
             />
             <Text className={styles.wordCount}>{reviewNote.length}/200</Text>

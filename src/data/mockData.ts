@@ -370,7 +370,17 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-14 10:45:00',
     syncedAt: '2024-06-14 10:45:03',
-    createdAt: '2024-06-14 10:45:00'
+    createdAt: '2024-06-14 10:45:00',
+    abnormalReviews: [],
+    hqCallback: {
+      confirmNo: 'HQ20240614-00756',
+      confirmedAt: '2024-06-14 11:30:00',
+      handlerName: '陈主管',
+      handlingOpinion: '温度全程达标，同意正常入库',
+      finalDisposition: 'accepted',
+      finalDispositionNote: '全部正常接收',
+      disposedAt: '2024-06-14 11:30:00'
+    }
   },
   {
     id: 'REC003',
@@ -460,7 +470,8 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-13 08:55:00',
     syncedAt: '2024-06-13 08:55:02',
-    createdAt: '2024-06-13 08:55:00'
+    createdAt: '2024-06-13 08:55:00',
+    abnormalReviews: []
   },
   {
     id: 'REC005',
@@ -490,7 +501,8 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-13 07:15:00',
     syncedAt: '2024-06-13 07:15:06',
-    createdAt: '2024-06-13 07:15:00'
+    createdAt: '2024-06-13 07:15:00',
+    abnormalReviews: []
   },
   {
     id: 'REC006',
@@ -524,6 +536,7 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     submittedAt: '2024-06-12 09:30:00',
     syncedAt: '2024-06-12 09:30:10',
     createdAt: '2024-06-12 09:30:00',
+    abnormalReviews: [],
     hqCallback: {
       confirmNo: 'HQ20240612-00812',
       confirmedAt: '2024-06-12 11:00:00',
@@ -562,7 +575,8 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-12 07:40:00',
     syncedAt: '2024-06-12 07:40:03',
-    createdAt: '2024-06-12 07:40:00'
+    createdAt: '2024-06-12 07:40:00',
+    abnormalReviews: []
   },
   {
     id: 'REC008',
@@ -592,7 +606,8 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-11 08:35:00',
     syncedAt: '2024-06-11 08:35:02',
-    createdAt: '2024-06-11 08:35:00'
+    createdAt: '2024-06-11 08:35:00',
+    abnormalReviews: []
   },
   {
     id: 'REC009',
@@ -622,7 +637,8 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-11 07:00:00',
     syncedAt: '2024-06-11 07:00:01',
-    createdAt: '2024-06-11 07:00:00'
+    createdAt: '2024-06-11 07:00:00',
+    abnormalReviews: []
   },
   {
     id: 'REC010',

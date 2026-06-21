@@ -311,95 +311,97 @@
   padding: $spacing-lg;
   margin-bottom: $spacing-md;
   border-left: 8rpx solid $color-primary;
-  background: linear-gradient(135deg, rgba(22, 93, 255, 0.06) 0%, $color-bg-card 100%);
 }
 
-.hqCard {
-  background: $color-bg-section;
-  border-radius: $radius-md;
-  padding: $spacing-md;
+.timeline {
+  margin-top: $spacing-sm;
+  padding-left: $spacing-sm;
+}
+
+.timelineItem {
+  display: flex;
+  gap: $spacing-md;
+  min-height: 100rpx;
+  position: relative;
+
+  &.timelineLast {
+    min-height: auto;
+  }
+
+  &.timelineDone {
+    .timelineTitle {
+      color: $color-text-primary;
+    }
+
+    .timelineDesc {
+      color: $color-text-secondary;
+    }
+
+    .timelineLine {
+      background: $color-primary;
+    }
+  }
+}
+
+.timelineLineWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 48rpx;
+}
+
+.timelineIcon {
+  font-size: 36rpx;
+  line-height: 1;
+  z-index: 1;
+}
+
+.timelineLine {
+  width: 4rpx;
+  flex: 1;
+  background: $color-border;
+  margin: $spacing-xs 0;
+}
+
+.timelineContent {
+  flex: 1;
+  padding-bottom: $spacing-lg;
+}
+
+.timelineLast .timelineContent {
+  padding-bottom: 0;
+}
+
+.timelineHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.timelineTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-tertiary;
+}
+
+.timelineTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timelineDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  line-height: 1.6;
+}
+
+.timelineDisposition {
   margin-top: $spacing-sm;
 }
 
-.hqHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: $spacing-md;
-  padding-bottom: $spacing-md;
-  border-bottom: 1rpx dashed $color-divider;
-}
-
-.hqConfirmInfo {
-  flex: 1;
-}
-
-.hqConfirmNo {
-  font-size: $font-size-md;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
-  display: block;
-  margin-bottom: $spacing-xs;
-}
-
-.hqConfirmTime {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-}
-
-.hqHandler {
-  text-align: right;
-}
-
-.hqHandlerLabel {
-  font-size: $font-size-xs;
-  color: $color-text-tertiary;
-  display: block;
-  margin-bottom: $spacing-xs;
-}
-
-.hqHandlerName {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-primary;
-  background: rgba(22, 93, 255, 0.1);
-  padding: $spacing-xs $spacing-sm;
-  border-radius: $radius-sm;
-}
-
-.hqOpinion {
-  margin-bottom: $spacing-md;
-}
-
-.hqOpinionLabel {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  display: block;
-  margin-bottom: $spacing-sm;
-}
-
-.hqOpinionText {
-  font-size: $font-size-md;
-  color: $color-text-primary;
-  line-height: 1.6;
-  background: rgba(255, 255, 255, 0.6);
-  padding: $spacing-md;
-  border-radius: $radius-sm;
-}
-
-.hqDisposition {
-  padding-top: $spacing-md;
-  border-top: 1rpx dashed $color-divider;
-}
-
-.hqDispositionLabel {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  display: block;
-  margin-bottom: $spacing-sm;
-}
-
-.hqDispositionTag {
+.timelineDispositionTag {
   display: inline-block;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
@@ -408,16 +410,14 @@
   margin-bottom: $spacing-sm;
 }
 
-.hqDispositionNote {
+.timelineDispositionNote {
   font-size: $font-size-sm;
   color: $color-text-primary;
   line-height: 1.6;
-  margin-bottom: $spacing-sm;
-}
-
-.hqDispositionTime {
-  font-size: $font-size-xs;
-  color: $color-text-tertiary;
+  display: block;
+  background: rgba(255, 255, 255, 0.6);
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-sm;
 }
 
 .reviewItem {
@@ -437,6 +437,20 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: $spacing-sm;
+}
+
+.reviewItemLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.reviewNodeTag {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  background: rgba(22, 93, 255, 0.1);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-round;
 }
 
 .reviewItemTitle {
@@ -459,6 +473,14 @@
 .reviewSegmentTime {
   font-size: $font-size-xs;
   color: $color-text-secondary;
+}
+
+.reviewCarrierRemark {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+  display: block;
+  line-height: 1.5;
 }
 
 .reviewNote {

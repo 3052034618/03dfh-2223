@@ -10,7 +10,6 @@ import type {
   JudgeResult,
   JudgeSuggestion,
   AbnormalReview,
-  ProductAppearance,
   SearchFilters,
   HqCallbackResult,
   HqDisposition
@@ -169,14 +168,12 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
       saveRecordsToStorage([...mockReceiptRecords])
     }
 
-    const pendingRecords = get().records.filter(r => r.syncStatus !== 'synced')
-    pendingRecords.forEach(record => {
-      if (record.syncStatus === 'pending') {
-        setTimeout(() => {
-          get().updateRecordSyncStatus(record.id, 'syncing')
-          get().retrySync(record.id)
-        }, 500 + Math.random() * 1000)
-      }
+    const failedRecords = get().records.filter(r => r.syncStatus === 'failed')
+    failedRecords.forEach(record => {
+      setTimeout(() => {
+        get().updateRecordSyncStatus(record.id, 'syncing')
+        get().retrySync(record.id)
+      }, 500 + Math.random() * 1000)
     })
   },
 
@@ -500,11 +497,6 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
     set({ currentRecordId: record.id })
     get().persistRecords()
 
-    setTimeout(() => {
-      get().updateRecordSyncStatus(record.id, 'syncing')
-      get().retrySync(record.id)
-    }, 100)
-
     return record
   },
 
@@ -625,16 +617,27 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
         r.productName.toLowerCase().includes(keyword) ||
         r.driverName.toLowerCase().includes(keyword) ||
         r.warehouse.toLowerCase().includes(keyword) ||
-        r.vehicleNo.toLowerCase().includes(keyword)
+        r.vehicleNo.toLowerCase().includes(keyword) ||
+        r.actualArrival.toLowerCase().includes(keyword) ||
+        r.submittedAt.toLowerCase().includes(keyword) ||
+        r.createdAt.toLowerCase().includes(keyword)
       )
     }
 
     if (filters.dateFrom) {
-      result = result.filter(r => r.createdAt >= filters.dateFrom!)
+      result = result.filter(r => {
+        const arrivalDate = r.actualArrival.substring(0, 10)
+        const createdDate = r.createdAt.substring(0, 10)
+        return arrivalDate >= filters.dateFrom! || createdDate >= filters.dateFrom!
+      })
     }
 
     if (filters.dateTo) {
-      result = result.filter(r => r.createdAt <= filters.dateTo + ' 23:59:59')
+      result = result.filter(r => {
+        const arrivalDate = r.actualArrival.substring(0, 10)
+        const createdDate = r.createdAt.substring(0, 10)
+        return arrivalDate <= filters.dateTo! || createdDate <= filters.dateTo!
+      })
     }
 
     if (filters.tempStatus && filters.tempStatus !== 'all') {

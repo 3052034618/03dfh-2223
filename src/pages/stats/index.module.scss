@@ -1,0 +1,247 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $spacing-lg $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 32rpx);
+  background: $color-bg-page;
+}
+
+.dateFilter {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.dateFilterTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.sectionIcon {
+  font-size: 36rpx;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.dateRangeRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.dateInput {
+  flex: 1;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-align: center;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &.dateSelected {
+    color: $color-primary;
+    background: rgba(22, 93, 255, 0.08);
+    border-color: rgba(22, 93, 255, 0.3);
+  }
+}
+
+.dateSeparator {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.quickDateRow {
+  display: flex;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.quickDateBtn {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  padding: $spacing-xs $spacing-md;
+  background: rgba(22, 93, 255, 0.08);
+  border-radius: $radius-round;
+  white-space: nowrap;
+}
+
+.quickDateClear {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.overviewCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.cardTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.titleIcon {
+  font-size: 36rpx;
+}
+
+.dateHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-normal;
+  margin-left: auto;
+}
+
+.overviewGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.overviewItem {
+  text-align: center;
+  padding: $spacing-md $spacing-sm;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+}
+
+.overviewValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+  line-height: 1.2;
+}
+
+.overviewLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-top: $spacing-xs;
+  display: block;
+}
+
+.ratioRow {
+  display: flex;
+  border-top: 1rpx solid $color-divider;
+  padding-top: $spacing-md;
+  gap: $spacing-md;
+}
+
+.ratioItem {
+  flex: 1;
+  text-align: center;
+}
+
+.ratioLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.ratioValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+}
+
+.dailyCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.dailyList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.dailyItem {
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.dailyDate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.dailyDateText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.dailyTotal {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.dailyStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.dailyTag {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-round;
+  white-space: nowrap;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xl * 2;
+}
+
+.emptyIcon {
+  font-size: 100rpx;
+  opacity: 0.2;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}

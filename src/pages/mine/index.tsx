@@ -63,6 +63,15 @@ const MinePage: React.FC = () => {
         <View className={styles.menuCard}>
           <View
             className={styles.menuItem}
+            onClick={() => Taro.navigateTo({ url: '/pages/stats/index' })}>
+            <View className={styles.menuLeft}>
+              <Text className={styles.menuIcon}>📊</Text>
+              <Text className={styles.menuText}>复盘统计</Text>
+            </View>
+            <Text className={styles.menuArrow}>›</Text>
+          </View>
+          <View
+            className={styles.menuItem}
             onClick={() => handleMenuItemClick('操作指南')}>
             <View className={styles.menuLeft}>
               <Text className={styles.menuIcon}>📖</Text>

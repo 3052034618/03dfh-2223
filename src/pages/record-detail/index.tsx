@@ -63,6 +63,7 @@ const RecordDetailPage: React.FC = () => {
 
   const renderSyncStatus = () => {
     const showRetry = record.syncStatus === 'failed' || record.syncStatus === 'pending'
+    const retryLabel = record.syncStatus === 'pending' ? '模拟回传' : '重试'
 
     return (
       <View className={styles.syncStatusCard}>
@@ -93,7 +94,7 @@ const RecordDetailPage: React.FC = () => {
           </View>
           {showRetry && (
             <View className={styles.retryBtn} onClick={handleRetrySync}>
-              <Text className={styles.retryBtnText}>重试</Text>
+              <Text className={styles.retryBtnText}>{retryLabel}</Text>
             </View>
           )}
         </View>
@@ -102,58 +103,135 @@ const RecordDetailPage: React.FC = () => {
   }
 
   const renderHqCallback = () => {
-    if (!record.hqCallback) return null
     const hq = record.hqCallback
+    interface TimelineItem {
+      icon: string
+      title: string
+      time: string
+      desc: string
+      done: boolean
+      disposition?: any
+      dispositionNote?: string
+    }
+    const timelineItems: TimelineItem[] = []
+
+    timelineItems.push({
+      icon: '📤',
+      title: '门店提交',
+      time: formatDateTime(record.submittedAt),
+      desc: '验收单已提交至总部',
+      done: true
+    })
+
+    if (record.syncStatus === 'synced' || record.syncedAt) {
+      timelineItems.push({
+        icon: '📥',
+        title: '回传总部',
+        time: formatDateTime(record.syncedAt || record.submittedAt),
+        desc: '总部已收到验收数据',
+        done: true
+      })
+    } else if (record.syncStatus === 'syncing') {
+      timelineItems.push({
+        icon: '⏳',
+        title: '回传总部',
+        time: '',
+        desc: '正在回传中...',
+        done: false
+      })
+    } else {
+      timelineItems.push({
+        icon: '📤',
+        title: '回传总部',
+        time: '',
+        desc: '待回传',
+        done: false
+      })
+    }
+
+    if (hq) {
+      timelineItems.push({
+        icon: '🏢',
+        title: '总部确认',
+        time: formatDateTime(hq.confirmedAt),
+        desc: `确认号：${hq.confirmNo}，处理人：${hq.handlerName}`,
+        done: true
+      })
+
+      if (hq.handlingOpinion) {
+        timelineItems.push({
+          icon: '💬',
+          title: '处理意见',
+          time: '',
+          desc: hq.handlingOpinion,
+          done: true
+        })
+      }
+
+      if (hq.finalDisposition) {
+        timelineItems.push({
+          icon: '✅',
+          title: '最终处理',
+          time: hq.disposedAt ? formatDateTime(hq.disposedAt) : '',
+          desc: '',
+          done: true,
+          disposition: hq.finalDisposition,
+          dispositionNote: hq.finalDispositionNote
+        })
+      }
+    }
 
     return (
       <View className={styles.hqSection}>
         <Text className={styles.cardTitle}>
           <Text className={styles.titleIcon}>🏢</Text>
-          总部回传结果
+          总部回传流程
         </Text>
 
-        <View className={styles.hqCard}>
-          <View className={styles.hqHeader}>
-            <View className={styles.hqConfirmInfo}>
-              <Text className={styles.hqConfirmNo}>确认号：{hq.confirmNo}</Text>
-              <Text className={styles.hqConfirmTime}>
-                确认时间：{formatDateTime(hq.confirmedAt)}
-              </Text>
-            </View>
-            <View className={styles.hqHandler}>
-              <Text className={styles.hqHandlerLabel}>处理人</Text>
-              <Text className={styles.hqHandlerName}>{hq.handlerName}</Text>
-            </View>
-          </View>
-
-          <View className={styles.hqOpinion}>
-            <Text className={styles.hqOpinionLabel}>处理意见</Text>
-            <Text className={styles.hqOpinionText}>{hq.handlingOpinion}</Text>
-          </View>
-
-          {hq.finalDisposition && (
-            <View className={styles.hqDisposition}>
-              <Text className={styles.hqDispositionLabel}>最终处理结论</Text>
-              <View
-                className={styles.hqDispositionTag}
-                style={{
-                  background: `${getHqDispositionColor(hq.finalDisposition)}15`,
-                  color: getHqDispositionColor(hq.finalDisposition)
-                }}>
-                {getHqDispositionLabel(hq.finalDisposition)}
+        <View className={styles.timeline}>
+          {timelineItems.map((item, index) => (
+            <View
+              key={index}
+              className={classnames(styles.timelineItem, {
+                [styles.timelineDone]: item.done,
+                [styles.timelineLast]: index === timelineItems.length - 1
+              })}>
+              <View className={styles.timelineLineWrap}>
+                <Text className={styles.timelineIcon}>{item.icon}</Text>
+                {index < timelineItems.length - 1 && (
+                  <View className={styles.timelineLine} />
+                )}
               </View>
-              {hq.finalDispositionNote && (
-                <Text className={styles.hqDispositionNote}>
-                  {hq.finalDispositionNote}
-                </Text>
-              )}
-              {hq.disposedAt && (
-                <Text className={styles.hqDispositionTime}>
-                  处理时间：{formatDateTime(hq.disposedAt)}
-                </Text>
-              )}
+              <View className={styles.timelineContent}>
+                <View className={styles.timelineHeader}>
+                  <Text className={styles.timelineTitle}>{item.title}</Text>
+                  {item.time && (
+                    <Text className={styles.timelineTime}>{item.time}</Text>
+                  )}
+                </View>
+                {item.desc && (
+                  <Text className={styles.timelineDesc}>{item.desc}</Text>
+                )}
+                {item.disposition && (
+                  <View className={styles.timelineDisposition}>
+                    <View
+                      className={styles.timelineDispositionTag}
+                      style={{
+                        background: `${getHqDispositionColor(item.disposition)}15`,
+                        color: getHqDispositionColor(item.disposition)
+                      }}>
+                      {getHqDispositionLabel(item.disposition)}
+                    </View>
+                    {item.dispositionNote && (
+                      <Text className={styles.timelineDispositionNote}>
+                        {item.dispositionNote}
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
             </View>
-          )}
+          ))}
         </View>
       </View>
     )
@@ -177,12 +255,26 @@ const RecordDetailPage: React.FC = () => {
             .flatMap(n => n.abnormalSegments)
             .find(s => s.id === review.segmentId)
 
+          const nodeLabel = (() => {
+            for (const node of record.tempNodes) {
+              if (node.abnormalSegments.some(s => s.id === review.segmentId)) {
+                return node.label
+              }
+            }
+            return ''
+          })()
+
           return (
             <View key={review.segmentId} className={styles.reviewItem}>
               <View className={styles.reviewItemHeader}>
-                <Text className={styles.reviewItemTitle}>
-                  异常片段 {index + 1}
-                </Text>
+                <View className={styles.reviewItemLeft}>
+                  <Text className={styles.reviewItemTitle}>
+                    异常片段 {index + 1}
+                  </Text>
+                  {nodeLabel && (
+                    <Text className={styles.reviewNodeTag}>{nodeLabel}</Text>
+                  )}
+                </View>
                 <Text
                   className={styles.appearanceTag}
                   style={{
@@ -199,6 +291,11 @@ const RecordDetailPage: React.FC = () => {
                     {formatDateTime(segment.startTime, 'HH:mm')} - {formatDateTime(segment.endTime, 'HH:mm')}
                     （{formatDuration(segment.durationMinutes)}）
                   </Text>
+                  {segment.carrierRemark && (
+                    <Text className={styles.reviewCarrierRemark}>
+                      承运方备注：{segment.carrierRemark}
+                    </Text>
+                  )}
                 </View>
               )}
 
@@ -208,7 +305,9 @@ const RecordDetailPage: React.FC = () => {
 
               {review.supplementPhotos.length > 0 && (
                 <View className={styles.reviewPhotos}>
-                  <Text className={styles.reviewPhotosLabel}>补充照片</Text>
+                  <Text className={styles.reviewPhotosLabel}>
+                    补充照片（{review.supplementPhotos.length}张）
+                  </Text>
                   <View className={styles.reviewPhotosGrid}>
                     {review.supplementPhotos.map((photo, photoIndex) => (
                       <View

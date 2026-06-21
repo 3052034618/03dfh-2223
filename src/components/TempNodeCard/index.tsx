@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { View, Text } from '@tarojs/components'
-import classnames from 'classnames'
 import styles from './index.module.scss'
 import TempStatusBadge from '@/components/TempStatusBadge'
 import type { TempNode, AbnormalReview } from '@/types/coldchain'

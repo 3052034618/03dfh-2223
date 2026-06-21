@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { View, Text, ScrollView } from '@tarojs/components'
+import { View, Text, ScrollView, Picker } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import classnames from 'classnames'
 import styles from './index.module.scss'
@@ -7,6 +7,7 @@ import TempStatusBadge from '@/components/TempStatusBadge'
 import { useReceiptStore } from '@/store/receipt'
 import {
   formatDateTime,
+  formatDate,
   getConclusionLabel,
   getConclusionColor,
   getSyncStatusBizLabel,
@@ -33,6 +34,8 @@ const RecordsPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [onlyAbnormal, setOnlyAbnormal] = useState(false)
   const [onlyPendingSupervisor, setOnlyPendingSupervisor] = useState(false)
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
   const records = useReceiptStore(state => state.records)
   const searchRecords = useReceiptStore(state => state.searchRecords)
@@ -44,7 +47,9 @@ const RecordsPage: React.FC = () => {
     const filters: SearchFilters = {
       keyword: searchKeyword,
       onlyAbnormal,
-      onlyPendingSupervisor
+      onlyPendingSupervisor,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined
     }
     if (activeFilter === 'pending_sync') {
       filters.syncStatus = 'pending'
@@ -54,7 +59,7 @@ const RecordsPage: React.FC = () => {
       filters.conclusion = activeFilter
     }
     return filters
-  }, [searchKeyword, activeFilter, onlyAbnormal, onlyPendingSupervisor])
+  }, [searchKeyword, activeFilter, onlyAbnormal, onlyPendingSupervisor, dateFrom, dateTo])
 
   const filteredRecords = useMemo(() => {
     return searchRecords(searchFilters)
@@ -62,7 +67,7 @@ const RecordsPage: React.FC = () => {
 
   const stats = useMemo(() => ({
     total: records.length,
-    pending: records.filter(r => r.syncStatus !== 'synced').length,
+    pending: records.filter(r => r.syncStatus === 'pending' || r.syncStatus === 'syncing' || r.syncStatus === 'failed').length,
     failed: records.filter(r => r.syncStatus === 'failed').length,
     abnormal: records.filter(r => r.overallStatus !== 'normal').length,
     pendingSupervisor: records.filter(r => r.conclusion === 'pending_supervisor').length
@@ -107,13 +112,34 @@ const RecordsPage: React.FC = () => {
     setOnlyAbnormal(false)
     setOnlyPendingSupervisor(false)
     setActiveFilter('all')
+    setDateFrom('')
+    setDateTo('')
   }
 
-  const hasActiveFilters = onlyAbnormal || onlyPendingSupervisor || searchKeyword
+  const hasActiveFilters = onlyAbnormal || onlyPendingSupervisor || searchKeyword || dateFrom || dateTo
+
+  const handleDateFromChange = (e) => {
+    const val = e.detail.value
+    setDateFrom(val)
+  }
+
+  const handleDateToChange = (e) => {
+    const val = e.detail.value
+    setDateTo(val)
+  }
+
+  const handleQuickDate = (days: number) => {
+    const to = new Date()
+    const from = new Date()
+    from.setDate(from.getDate() - days)
+    setDateFrom(formatDate(from.toISOString()))
+    setDateTo(formatDate(to.toISOString()))
+  }
 
   const renderSyncBadge = (record: ReceiptRecord) => {
     const showRetry = record.syncStatus === 'failed' || record.syncStatus === 'pending'
     const hasHq = !!record.hqCallback
+    const retryLabel = record.syncStatus === 'pending' ? '模拟回传' : '重试'
 
     return (
       <View className={styles.syncRow}>
@@ -132,7 +158,7 @@ const RecordsPage: React.FC = () => {
               [styles.retrying]: retryingId === record.id
             })}
             onClick={(e) => handleRetrySync(e, record)}>
-            {retryingId === record.id ? '同步中...' : '重试'}
+            {retryingId === record.id ? '同步中...' : retryLabel}
           </Text>
         )}
       </View>
@@ -150,10 +176,9 @@ const RecordsPage: React.FC = () => {
           <Text className={styles.searchIcon}>🔍</Text>
           <input
             className={styles.searchInput}
-            placeholder="搜索运单号、货品名、司机、仓库..."
+            placeholder="搜索运单号、货品名、司机、日期..."
             value={searchKeyword}
             onInput={(e) => setSearchKeyword((e as any).detail.value)}
-            confirmType="search"
           />
           {searchKeyword && (
             <Text
@@ -167,7 +192,7 @@ const RecordsPage: React.FC = () => {
           className={classnames(styles.filterToggle, { [styles.active]: showFilters || hasActiveFilters })}
           onClick={() => setShowFilters(!showFilters)}>
           {showFilters ? '收起' : '筛选'}
-          {(onlyAbnormal || onlyPendingSupervisor) && (
+          {(onlyAbnormal || onlyPendingSupervisor || dateFrom || dateTo) && (
             <Text className={styles.filterDot}>●</Text>
           )}
         </Text>
@@ -175,6 +200,31 @@ const RecordsPage: React.FC = () => {
 
       {showFilters && (
         <View className={styles.filterPanel}>
+          <View className={styles.filterGroup}>
+            <Text className={styles.filterGroupTitle}>日期范围</Text>
+            <View className={styles.dateRangeRow}>
+              <Picker mode="date" onChange={handleDateFromChange} value={dateFrom || ''}>
+                <View className={classnames(styles.dateInput, { [styles.dateSelected]: !!dateFrom })}>
+                  <Text>{dateFrom || '开始日期'}</Text>
+                </View>
+              </Picker>
+              <Text className={styles.dateSeparator}>至</Text>
+              <Picker mode="date" onChange={handleDateToChange} value={dateTo || ''}>
+                <View className={classnames(styles.dateInput, { [styles.dateSelected]: !!dateTo })}>
+                  <Text>{dateTo || '结束日期'}</Text>
+                </View>
+              </Picker>
+            </View>
+            <View className={styles.quickDateRow}>
+              <Text className={styles.quickDateBtn} onClick={() => handleQuickDate(7)}>近7天</Text>
+              <Text className={styles.quickDateBtn} onClick={() => handleQuickDate(30)}>近30天</Text>
+              <Text className={styles.quickDateBtn} onClick={() => handleQuickDate(90)}>近90天</Text>
+              {(dateFrom || dateTo) && (
+                <Text className={styles.quickDateClear} onClick={() => { setDateFrom(''); setDateTo('') }}>清除</Text>
+              )}
+            </View>
+          </View>
+
           <View className={styles.filterGroup}>
             <Text className={styles.filterGroupTitle}>组合筛选</Text>
             <View className={styles.filterOptions}>
@@ -223,11 +273,11 @@ const RecordsPage: React.FC = () => {
           <Text className={styles.statLabel}>温度异常</Text>
         </View>
         <View className={styles.statDivider} />
-        <View className={styles.statItem}>
+        <View className={styles.statItem} onClick={() => Taro.navigateTo({ url: '/pages/stats/index' })}>
           <Text className={styles.statValue} style={{ color: '#165DFF' }}>
-            {stats.pendingSupervisor}
+            📊
           </Text>
-          <Text className={styles.statLabel}>待主管</Text>
+          <Text className={styles.statLabel}>复盘统计</Text>
         </View>
       </View>
 

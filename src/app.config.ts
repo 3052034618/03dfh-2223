@@ -6,7 +6,8 @@ export default defineAppConfig({
     'pages/waybill/index',
     'pages/temperature/index',
     'pages/conclusion/index',
-    'pages/record-detail/index'
+    'pages/record-detail/index',
+    'pages/stats/index'
   ],
   window: {
     backgroundTextStyle: 'light',
