@@ -6,6 +6,48 @@
   padding-bottom: calc(env(safe-area-inset-bottom) + 32rpx);
 }
 
+.statsBar {
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+}
+
+.statValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-top: $spacing-xs;
+}
+
+.statDivider {
+  width: 1rpx;
+  height: 60rpx;
+  background: $color-divider;
+}
+
+.retryAllBtn {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  padding: $spacing-xs $spacing-md;
+  background: rgba(22, 93, 255, 0.1);
+  border-radius: $radius-md;
+}
+
 .filterBar {
   display: flex;
   gap: $spacing-sm;
@@ -142,4 +184,48 @@
 .emptyText {
   font-size: $font-size-md;
   color: $color-text-tertiary;
+}
+
+.syncRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 1rpx dashed $color-divider;
+}
+
+.syncBadge {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+}
+
+.retryBtn {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  padding: $spacing-xs $spacing-md;
+  background: rgba(22, 93, 255, 0.1);
+  border-radius: $radius-round;
+
+  &.retrying {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $spacing-sm;
+}
+
+.photoCount {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  background: $color-bg-section;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
 }

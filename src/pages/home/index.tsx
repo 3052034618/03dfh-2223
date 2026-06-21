@@ -1,48 +1,72 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, Image, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import styles from './index.module.scss'
 import TempStatusBadge from '@/components/TempStatusBadge'
-import { mockUser, mockReceiptRecords, mockWaybill, mockTempNodes } from '@/data/mockData'
-import { formatDateTime, getConclusionLabel, getConclusionColor } from '@/utils/format'
+import { mockUser } from '@/data/mockData'
+import {
+  formatDateTime,
+  getConclusionLabel,
+  getConclusionColor,
+  getSyncStatusLabel,
+  getSyncStatusColor
+} from '@/utils/format'
 import { useReceiptStore } from '@/store/receipt'
 import type { ReceiptRecord } from '@/types/coldchain'
 
 const HomePage: React.FC = () => {
-  const setWaybillInfo = useReceiptStore(state => state.setWaybillInfo)
-  const setTempNodes = useReceiptStore(state => state.setTempNodes)
-  const calculateOverallStatus = useReceiptStore(state => state.calculateOverallStatus)
+  const scanWaybill = useReceiptStore(state => state.scanWaybill)
+  const isScanning = useReceiptStore(state => state.isScanning)
+  const scanError = useReceiptStore(state => state.scanError)
+  const records = useReceiptStore(state => state.records)
   const reset = useReceiptStore(state => state.reset)
+  const [showManualInput, setShowManualInput] = useState(false)
+  const [manualWaybillNo, setManualWaybillNo] = useState('')
+  const queryWaybill = useReceiptStore(state => state.queryWaybill)
 
-  const todayRecords = mockReceiptRecords.filter(r => r.createdAt.startsWith('2024-06-15'))
-  const recentRecords = mockReceiptRecords.slice(0, 3)
+  useEffect(() => {
+    if (scanError) {
+      Taro.showToast({
+        title: scanError,
+        icon: 'none',
+        duration: 3000
+      })
+    }
+  }, [scanError])
+
+  const todayRecords = records.filter(r => r.createdAt.startsWith('2024-06-15'))
+  const recentRecords = records.slice(0, 3)
+  const pendingCount = records.filter(r => r.syncStatus !== 'synced').length
 
   const handleScan = async () => {
-    try {
-      reset()
+    reset()
+    const waybill = await scanWaybill()
 
-      const res = await Taro.scanCode({
-        onlyFromCamera: false,
-        scanType: ['qrCode', 'barCode']
-      })
-      console.log('[HomePage] 扫码结果:', res.result)
-
-      setWaybillInfo(mockWaybill)
-      setTempNodes(mockTempNodes)
-      calculateOverallStatus()
-
+    if (waybill) {
       Taro.navigateTo({
         url: '/pages/waybill/index'
       })
-    } catch (error) {
-      console.error('[HomePage] 扫码失败', error)
+    }
+  }
 
-      setWaybillInfo(mockWaybill)
-      setTempNodes(mockTempNodes)
-      calculateOverallStatus()
-
+  const handleManualQuery = () => {
+    if (!manualWaybillNo.trim()) {
+      Taro.showToast({ title: '请输入运单号', icon: 'none' })
+      return
+    }
+    reset()
+    const waybill = queryWaybill(manualWaybillNo.trim())
+    if (waybill) {
+      setShowManualInput(false)
+      setManualWaybillNo('')
       Taro.navigateTo({
         url: '/pages/waybill/index'
+      })
+    } else {
+      Taro.showToast({
+        title: `未找到运单「${manualWaybillNo.trim()}」`,
+        icon: 'none',
+        duration: 3000
       })
     }
   }
@@ -89,6 +113,12 @@ const HomePage: React.FC = () => {
             </Text>
             <Text className={styles.statLabel}>需关注</Text>
           </View>
+          <View className={styles.statCard}>
+            <Text className={styles.statValue} style={{ color: '#FF7D00' }}>
+              {pendingCount}
+            </Text>
+            <Text className={styles.statLabel}>待回传</Text>
+          </View>
         </View>
       </View>
 
@@ -101,14 +131,80 @@ const HomePage: React.FC = () => {
             </Text>
           </View>
 
-          <View className={styles.scanBtn} onClick={handleScan}>
-            <Text className={styles.scanIcon}>📷</Text>
-            <Text className={styles.scanBtnText}>扫一扫运单码</Text>
+          <View
+            className={`${styles.scanBtn} ${isScanning ? styles.scanBtnDisabled : ''}`}
+            onClick={!isScanning ? handleScan : undefined}>
+            <Text className={styles.scanIcon}>{isScanning ? '⏳' : '📷'}</Text>
+            <Text className={styles.scanBtnText}>
+              {isScanning ? '扫码中...' : '扫一扫运单码'}
+            </Text>
           </View>
+
+          {!showManualInput && (
+            <Text
+              className={styles.manualInputBtn}
+              onClick={() => setShowManualInput(true)}>
+              手动输入运单号 →
+            </Text>
+          )}
+
+          {showManualInput && (
+            <View className={styles.manualInputWrap}>
+              <View className={styles.manualInputRow}>
+                <input
+                  className={styles.manualInput}
+                  placeholder="请输入运单号，如 CC-20240615-00892"
+                  value={manualWaybillNo}
+                  onInput={(e) => setManualWaybillNo((e as any).detail.value)}
+                />
+                <View className={styles.queryBtn} onClick={handleManualQuery}>
+                  <Text className={styles.queryBtnText}>查询</Text>
+                </View>
+              </View>
+              <Text
+                className={styles.cancelManualBtn}
+                onClick={() => {
+                  setShowManualInput(false)
+                  setManualWaybillNo('')
+                }}>
+                取消
+              </Text>
+            </View>
+          )}
 
           <Text className={styles.quickTip}>
             扫码后将依次查看运单信息 → 温度记录 → 确认收货
           </Text>
+
+          <View className={styles.sampleCodes}>
+            <Text className={styles.sampleTitle}>测试运单号：</Text>
+            <View className={styles.sampleTags}>
+              <Text
+                className={styles.sampleTag}
+                onClick={() => {
+                  setManualWaybillNo('CC-20240615-00892')
+                  setShowManualInput(true)
+                }}>
+                CC-20240615-00892（冻猪排骨，橙色警告）
+              </Text>
+              <Text
+                className={styles.sampleTag}
+                onClick={() => {
+                  setManualWaybillNo('CC-20240615-00956')
+                  setShowManualInput(true)
+                }}>
+                CC-20240615-00956（冷鲜牛肉，绿色正常）
+              </Text>
+              <Text
+                className={styles.sampleTag}
+                onClick={() => {
+                  setManualWaybillNo('CC-20240615-01023')
+                  setShowManualInput(true)
+                }}>
+                CC-20240615-01023（冻虾仁，红色异常）
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View className={styles.section}>
@@ -134,6 +230,13 @@ const HomePage: React.FC = () => {
 
                 <View className={styles.recordMeta}>
                   <Text className={styles.metaItem}>📍 {record.warehouse}</Text>
+                  <Text
+                    className={styles.metaItem}
+                    style={{
+                      color: getSyncStatusColor(record.syncStatus)
+                    }}>
+                    ● {getSyncStatusLabel(record.syncStatus)}
+                  </Text>
                 </View>
 
                 <View className={styles.recordBottom}>

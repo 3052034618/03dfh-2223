@@ -215,3 +215,91 @@
     color: $color-temp-abnormal;
   }
 }
+
+.syncStatusCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  border-left: 8rpx solid $color-primary;
+}
+
+.syncStatusRow {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+}
+
+.syncStatusInfo {
+  flex: 1;
+}
+
+.syncStatusBadge {
+  display: inline-block;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  margin-bottom: $spacing-sm;
+}
+
+.syncTime {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.syncError {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-error;
+  background: rgba(245, 63, 63, 0.1);
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  margin-top: $spacing-sm;
+  line-height: 1.6;
+}
+
+.retryBtn {
+  padding: $spacing-sm $spacing-lg;
+  background: $color-primary;
+  border-radius: $radius-md;
+  flex-shrink: 0;
+}
+
+.retryBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.textWarning {
+  color: $color-temp-abnormal !important;
+}
+
+.photoCount {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-normal;
+}
+
+.unconfirmedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-section;
+  color: $color-text-tertiary;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.confirmTime {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+}

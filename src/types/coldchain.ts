@@ -4,6 +4,10 @@ export type ReceiptConclusion = 'accepted' | 'partial_rejected' | 'pending_super
 
 export type TempNodeType = 'loading' | 'transit' | 'arrival'
 
+export type SyncStatus = 'pending' | 'syncing' | 'synced' | 'failed'
+
+export type JudgeSuggestion = 'accept' | 'partial_reject' | 'report_supervisor'
+
 export interface AbnormalSegment {
   id: string
   startTime: string
@@ -55,15 +59,30 @@ export interface ReceiptRecord {
   waybillId: string
   waybillNo: string
   productName: string
+  productCount: number
+  unit: string
   warehouse: string
+  vehicleNo: string
+  driverName: string
   actualArrival: string
   overallStatus: TempStatus
+  tempNodes: TempNode[]
+  totalAbnormalMinutes: number
   conclusion: ReceiptConclusion
   receiverName: string
+  boxCountExpected: number
+  boxCountActual: number
   boxDiff: number
   photos: string[]
+  driverSignature: string
   driverConfirmed: boolean
+  driverConfirmedAt: string
   remark: string
+  syncStatus: SyncStatus
+  syncError?: string
+  syncAttempts: number
+  submittedAt: string
+  syncedAt?: string
   createdAt: string
 }
 
@@ -87,4 +106,12 @@ export interface UserInfo {
   storeAddress: string
   role: string
   avatar: string
+}
+
+export interface JudgeResult {
+  suggestion: JudgeSuggestion
+  level: 'success' | 'warning' | 'danger'
+  title: string
+  description: string
+  details: string[]
 }

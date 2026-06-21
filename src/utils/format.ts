@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import type { TempStatus, ReceiptConclusion } from '@/types/coldchain'
+import type { TempStatus, ReceiptConclusion, SyncStatus, JudgeSuggestion } from '@/types/coldchain'
 
 export const formatDateTime = (dateStr: string, format = 'YYYY-MM-DD HH:mm'): string => {
   return dayjs(dateStr).format(format)
@@ -58,4 +58,42 @@ export const getConclusionColor = (conclusion: ReceiptConclusion): string => {
     pending_supervisor: '#165DFF'
   }
   return map[conclusion]
+}
+
+export const getSyncStatusLabel = (status: SyncStatus): string => {
+  const map: Record<SyncStatus, string> = {
+    pending: '待同步',
+    syncing: '同步中',
+    synced: '已回传',
+    failed: '同步失败'
+  }
+  return map[status]
+}
+
+export const getSyncStatusColor = (status: SyncStatus): string => {
+  const map: Record<SyncStatus, string> = {
+    pending: '#165DFF',
+    syncing: '#FF7D00',
+    synced: '#00B42A',
+    failed: '#F53F3F'
+  }
+  return map[status]
+}
+
+export const getJudgeSuggestionLabel = (suggestion: JudgeSuggestion): string => {
+  const map: Record<JudgeSuggestion, string> = {
+    accept: '建议接收',
+    partial_reject: '建议部分拒收',
+    report_supervisor: '建议上报主管'
+  }
+  return map[suggestion]
+}
+
+export const getJudgeSuggestionColor = (suggestion: JudgeSuggestion): string => {
+  const map: Record<JudgeSuggestion, string> = {
+    accept: '#00B42A',
+    partial_reject: '#FF7D00',
+    report_supervisor: '#F53F3F'
+  }
+  return map[suggestion]
 }

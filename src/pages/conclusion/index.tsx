@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import classnames from 'classnames'
@@ -45,6 +45,8 @@ const ConclusionPage: React.FC = () => {
   const setDriverConfirmed = useReceiptStore(state => state.setDriverConfirmed)
   const prevStep = useReceiptStore(state => state.prevStep)
   const reset = useReceiptStore(state => state.reset)
+  const submitReceipt = useReceiptStore(state => state.submitReceipt)
+  const [submitting, setSubmitting] = useState(false)
 
   if (!waybillInfo) {
     Taro.showToast({
@@ -60,7 +62,9 @@ const ConclusionPage: React.FC = () => {
     Taro.navigateBack()
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (submitting) return
+
     if (!form.conclusion) {
       Taro.showToast({
         title: '请选择收货结论',
@@ -77,28 +81,41 @@ const ConclusionPage: React.FC = () => {
       return
     }
 
-    Taro.showModal({
+    const modalRes = await Taro.showModal({
       title: '确认提交',
-      content: '提交后验收记录将回传给总部，确认提交吗？',
-      success: (res) => {
-        if (res.confirm) {
-          Taro.showLoading({ title: '提交中...' })
-          setTimeout(() => {
-            Taro.hideLoading()
-            Taro.showToast({
-              title: '提交成功',
-              icon: 'success'
-            })
-            reset()
-            setTimeout(() => {
-              Taro.switchTab({
-                url: '/pages/records/index'
-              })
-            }, 1500)
-          }, 1000)
-        }
-      }
+      content: '提交后验收记录将回传给总部，确认提交吗？'
     })
+
+    if (!modalRes.confirm) return
+
+    try {
+      setSubmitting(true)
+      Taro.showLoading({ title: '提交中...', mask: true })
+
+      const record = await submitReceipt()
+
+      Taro.hideLoading()
+      Taro.showToast({
+        title: '提交成功',
+        icon: 'success',
+        duration: 1500
+      })
+
+      setTimeout(() => {
+        reset()
+        Taro.redirectTo({
+          url: `/pages/record-detail/index?id=${record.id}`
+        })
+      }, 1000)
+    } catch (error) {
+      Taro.hideLoading()
+      Taro.showToast({
+        title: '提交失败，请重试',
+        icon: 'none'
+      })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleBoxMinus = () => {
@@ -251,10 +268,10 @@ const ConclusionPage: React.FC = () => {
         </View>
         <View
           className={classnames(styles.btn, styles.btnPrimary, {
-            [styles.disabled]: !form.conclusion || !form.driverSignature
+            [styles.disabled]: !form.conclusion || !form.driverSignature || submitting
           })}
           onClick={handleSubmit}>
-          <Text>提交验收</Text>
+          <Text>{submitting ? '提交中...' : '提交验收'}</Text>
         </View>
       </View>
     </>

@@ -228,3 +228,81 @@
   background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
   color: $color-text-white;
 }
+
+.suggestionCard {
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  border-left: 8rpx solid $color-success;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+
+  &.success {
+    border-left-color: $color-success;
+    background: linear-gradient(135deg, rgba(0, 180, 42, 0.08) 0%, $color-bg-card 100%);
+  }
+
+  &.warning {
+    border-left-color: $color-temp-warning;
+    background: linear-gradient(135deg, rgba(255, 125, 0, 0.08) 0%, $color-bg-card 100%);
+  }
+
+  &.danger {
+    border-left-color: $color-temp-abnormal;
+    background: linear-gradient(135deg, rgba(245, 63, 63, 0.08) 0%, $color-bg-card 100%);
+  }
+}
+
+.suggestionHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.suggestionIcon {
+  font-size: 56rpx;
+  line-height: 1;
+}
+
+.suggestionTitleWrap {
+  flex: 1;
+}
+
+.suggestionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+}
+
+.suggestionSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.suggestionDesc {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  line-height: 1.6;
+}
+
+.suggestionDetails {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.suggestionDetail {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.suggestionTip {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  font-style: italic;
+}
