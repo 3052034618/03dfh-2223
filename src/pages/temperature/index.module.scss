@@ -306,3 +306,42 @@
   color: $color-text-tertiary;
   font-style: italic;
 }
+
+.reviewSummary {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-lg;
+  border-left: 6rpx solid $color-primary;
+}
+
+.reviewSummaryLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xs;
+}
+
+.reviewSummaryIcon {
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.reviewSummaryTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+}
+
+.reviewSummaryDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.reviewSummaryTip {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: 68rpx;
+}

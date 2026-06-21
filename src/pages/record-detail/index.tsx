@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Image } from '@tarojs/components'
+import { View, Text, Image, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useRouter } from '@tarojs/taro'
 import classnames from 'classnames'
@@ -9,9 +9,13 @@ import {
   formatDateTime,
   getStatusLabel,
   getConclusionLabel,
-  getSyncStatusLabel,
   getSyncStatusColor,
-  formatDuration
+  formatDuration,
+  getSyncStatusBizLabel,
+  getHqDispositionLabel,
+  getHqDispositionColor,
+  getProductAppearanceLabel,
+  getProductAppearanceColor
 } from '@/utils/format'
 import type { ReceiptRecord } from '@/types/coldchain'
 
@@ -25,7 +29,6 @@ const RecordDetailPage: React.FC = () => {
   const router = useRouter()
   const recordId = router.params.id
   const getRecordById = useReceiptStore(state => state.getRecordById)
-  const records = useReceiptStore(state => state.records)
   const retrySync = useReceiptStore(state => state.retrySync)
 
   const record = getRecordById(recordId || '') as ReceiptRecord | undefined
@@ -40,10 +43,12 @@ const RecordDetailPage: React.FC = () => {
     )
   }
 
-  const handlePhotoPreview = (index: number) => {
+  const hasHqCallback = !!record.hqCallback
+
+  const handlePhotoPreview = (photos: string[], index: number) => {
     Taro.previewImage({
-      current: record.photos[index],
-      urls: record.photos
+      current: photos[index],
+      urls: photos
     })
   }
 
@@ -69,8 +74,8 @@ const RecordDetailPage: React.FC = () => {
                 background: `${getSyncStatusColor(record.syncStatus)}15`,
                 color: getSyncStatusColor(record.syncStatus)
               }}>
-              {record.syncStatus === 'syncing' ? '⏳ ' : record.syncStatus === 'failed' ? '❌ ' : record.syncStatus === 'pending' ? '🕐 ' : '✓ '}
-              {getSyncStatusLabel(record.syncStatus)}
+              {record.syncStatus === 'syncing' ? '⏳ ' : record.syncStatus === 'failed' ? '❌ ' : ''}
+              {getSyncStatusBizLabel(record.syncStatus, hasHqCallback)}
             </Text>
             <Text className={styles.syncTime}>
               提交时间：{formatDateTime(record.submittedAt)}
@@ -96,8 +101,143 @@ const RecordDetailPage: React.FC = () => {
     )
   }
 
+  const renderHqCallback = () => {
+    if (!record.hqCallback) return null
+    const hq = record.hqCallback
+
+    return (
+      <View className={styles.hqSection}>
+        <Text className={styles.cardTitle}>
+          <Text className={styles.titleIcon}>🏢</Text>
+          总部回传结果
+        </Text>
+
+        <View className={styles.hqCard}>
+          <View className={styles.hqHeader}>
+            <View className={styles.hqConfirmInfo}>
+              <Text className={styles.hqConfirmNo}>确认号：{hq.confirmNo}</Text>
+              <Text className={styles.hqConfirmTime}>
+                确认时间：{formatDateTime(hq.confirmedAt)}
+              </Text>
+            </View>
+            <View className={styles.hqHandler}>
+              <Text className={styles.hqHandlerLabel}>处理人</Text>
+              <Text className={styles.hqHandlerName}>{hq.handlerName}</Text>
+            </View>
+          </View>
+
+          <View className={styles.hqOpinion}>
+            <Text className={styles.hqOpinionLabel}>处理意见</Text>
+            <Text className={styles.hqOpinionText}>{hq.handlingOpinion}</Text>
+          </View>
+
+          {hq.finalDisposition && (
+            <View className={styles.hqDisposition}>
+              <Text className={styles.hqDispositionLabel}>最终处理结论</Text>
+              <View
+                className={styles.hqDispositionTag}
+                style={{
+                  background: `${getHqDispositionColor(hq.finalDisposition)}15`,
+                  color: getHqDispositionColor(hq.finalDisposition)
+                }}>
+                {getHqDispositionLabel(hq.finalDisposition)}
+              </View>
+              {hq.finalDispositionNote && (
+                <Text className={styles.hqDispositionNote}>
+                  {hq.finalDispositionNote}
+                </Text>
+              )}
+              {hq.disposedAt && (
+                <Text className={styles.hqDispositionTime}>
+                  处理时间：{formatDateTime(hq.disposedAt)}
+                </Text>
+              )}
+            </View>
+          )}
+        </View>
+      </View>
+    )
+  }
+
+  const renderAbnormalReviews = () => {
+    if (!record.abnormalReviews || record.abnormalReviews.length === 0) {
+      return null
+    }
+
+    return (
+      <View className={styles.card}>
+        <Text className={styles.cardTitle}>
+          <Text className={styles.titleIcon}>🔍</Text>
+          异常片段复核
+          <Text className={styles.photoCount}>（{record.abnormalReviews.length}段）</Text>
+        </Text>
+
+        {record.abnormalReviews.map((review, index) => {
+          const segment = record.tempNodes
+            .flatMap(n => n.abnormalSegments)
+            .find(s => s.id === review.segmentId)
+
+          return (
+            <View key={review.segmentId} className={styles.reviewItem}>
+              <View className={styles.reviewItemHeader}>
+                <Text className={styles.reviewItemTitle}>
+                  异常片段 {index + 1}
+                </Text>
+                <Text
+                  className={styles.appearanceTag}
+                  style={{
+                    background: `${getProductAppearanceColor(review.appearance)}15`,
+                    color: getProductAppearanceColor(review.appearance)
+                  }}>
+                  {getProductAppearanceLabel(review.appearance)}
+                </Text>
+              </View>
+
+              {segment && (
+                <View className={styles.reviewSegmentInfo}>
+                  <Text className={styles.reviewSegmentTime}>
+                    {formatDateTime(segment.startTime, 'HH:mm')} - {formatDateTime(segment.endTime, 'HH:mm')}
+                    （{formatDuration(segment.durationMinutes)}）
+                  </Text>
+                </View>
+              )}
+
+              {review.reviewNote && (
+                <Text className={styles.reviewNote}>复核说明：{review.reviewNote}</Text>
+              )}
+
+              {review.supplementPhotos.length > 0 && (
+                <View className={styles.reviewPhotos}>
+                  <Text className={styles.reviewPhotosLabel}>补充照片</Text>
+                  <View className={styles.reviewPhotosGrid}>
+                    {review.supplementPhotos.map((photo, photoIndex) => (
+                      <View
+                        key={photoIndex}
+                        className={styles.reviewPhotoItem}
+                        onClick={() => handlePhotoPreview(review.supplementPhotos, photoIndex)}>
+                        <Image
+                          className={styles.reviewPhotoImg}
+                          src={photo}
+                          mode="aspectFill"
+                        />
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              <Text className={styles.reviewFooter}>
+                复核人：{review.reviewerName} · {formatDateTime(review.reviewedAt)}
+              </Text>
+            </View>
+          )
+        })}
+      </View>
+    )
+  }
+
   return (
-    <View className={styles.container}>
+    <ScrollView scrollY className={styles.container}>
       <View className={classnames(styles.statusCard, styles[record.overallStatus])}>
         <Text className={styles.statusIcon}>{statusIconMap[record.overallStatus]}</Text>
         <Text className={styles.statusText}>{getStatusLabel(record.overallStatus)}</Text>
@@ -107,6 +247,8 @@ const RecordDetailPage: React.FC = () => {
       </View>
 
       {renderSyncStatus()}
+
+      {renderHqCallback()}
 
       <View className={styles.card}>
         <Text className={styles.cardTitle}>
@@ -164,6 +306,8 @@ const RecordDetailPage: React.FC = () => {
         </View>
       </View>
 
+      {renderAbnormalReviews()}
+
       <View className={styles.card}>
         <Text className={styles.cardTitle}>
           <Text className={styles.titleIcon}>📝</Text>
@@ -212,7 +356,7 @@ const RecordDetailPage: React.FC = () => {
               <View
                 key={index}
                 className={styles.photoItem}
-                onClick={() => handlePhotoPreview(index)}>
+                onClick={() => handlePhotoPreview(record.photos, index)}>
                 <Image
                   className={styles.photoImg}
                   src={photo}
@@ -272,7 +416,7 @@ const RecordDetailPage: React.FC = () => {
           </>
         )}
       </View>
-    </View>
+    </ScrollView>
   )
 }
 

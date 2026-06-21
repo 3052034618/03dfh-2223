@@ -110,3 +110,25 @@
   text-align: center;
   padding: $spacing-md;
 }
+
+.reviewRow {
+  margin-top: $spacing-sm;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.reviewBtn {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  padding: $spacing-xs $spacing-md;
+  background: rgba(22, 93, 255, 0.1);
+  border-radius: $radius-round;
+}
+
+.reviewedBadge {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+}

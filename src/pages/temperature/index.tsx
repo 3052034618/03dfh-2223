@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import classnames from 'classnames'
 import styles from './index.module.scss'
 import TempNodeCard from '@/components/TempNodeCard'
+import AbnormalReviewModal from '@/components/AbnormalReviewModal'
 import { useReceiptStore } from '@/store/receipt'
 import {
   getStatusLabel,
@@ -12,7 +13,7 @@ import {
   getJudgeSuggestionLabel,
   getJudgeSuggestionColor
 } from '@/utils/format'
-import type { JudgeResult } from '@/types/coldchain'
+import type { JudgeResult, AbnormalSegment, AbnormalReview } from '@/types/coldchain'
 
 const statusIconMap: Record<string, string> = {
   normal: '✅',
@@ -31,13 +32,22 @@ const TemperaturePage: React.FC = () => {
   const overallStatus = useReceiptStore(state => state.overallStatus)
   const waybillInfo = useReceiptStore(state => state.waybillInfo)
   const totalAbnormalMinutes = useReceiptStore(state => state.totalAbnormalMinutes)
+  const form = useReceiptStore(state => state.form)
   const generateJudgeSuggestion = useReceiptStore(state => state.generateJudgeSuggestion)
+  const addAbnormalReview = useReceiptStore(state => state.addAbnormalReview)
+  const getAbnormalReview = useReceiptStore(state => state.getAbnormalReview)
   const nextStep = useReceiptStore(state => state.nextStep)
   const prevStep = useReceiptStore(state => state.prevStep)
+
+  const [reviewModalVisible, setReviewModalVisible] = useState(false)
+  const [currentSegment, setCurrentSegment] = useState<AbnormalSegment | null>(null)
 
   const judgeResult = useMemo<JudgeResult>(() => {
     return generateJudgeSuggestion()
   }, [generateJudgeSuggestion])
+
+  const reviewedCount = form.abnormalReviews.length
+  const totalAbnormalCount = tempNodes.reduce((sum, node) => sum + node.abnormalCount, 0)
 
   if (tempNodes.length === 0) {
     Taro.showToast({
@@ -48,7 +58,6 @@ const TemperaturePage: React.FC = () => {
     return null
   }
 
-  const totalAbnormalCount = tempNodes.reduce((sum, node) => sum + node.abnormalCount, 0)
   const avgTemp = tempNodes.reduce((sum, node) => sum + node.avgTemp, 0) / tempNodes.length
 
   const handlePrev = () => {
@@ -57,10 +66,47 @@ const TemperaturePage: React.FC = () => {
   }
 
   const handleNext = () => {
+    if (totalAbnormalCount > 0 && reviewedCount === 0) {
+      Taro.showModal({
+        title: '提示',
+        content: '存在温度异常片段，建议完成货品外观复核后再提交，是否继续？',
+        confirmText: '继续下一步',
+        cancelText: '去复核',
+        success: (res) => {
+          if (res.confirm) {
+            nextStep()
+            Taro.navigateTo({
+              url: '/pages/conclusion/index'
+            })
+          }
+        }
+      })
+      return
+    }
+
     nextStep()
     Taro.navigateTo({
       url: '/pages/conclusion/index'
     })
+  }
+
+  const handleReviewSegment = (segmentId: string) => {
+    let segment: AbnormalSegment | null = null
+    for (const node of tempNodes) {
+      const found = node.abnormalSegments.find(s => s.id === segmentId)
+      if (found) {
+        segment = found
+        break
+      }
+    }
+    if (segment) {
+      setCurrentSegment(segment)
+      setReviewModalVisible(true)
+    }
+  }
+
+  const handleSaveReview = (review: Omit<AbnormalReview, 'reviewedAt' | 'reviewerName'>) => {
+    addAbnormalReview(review)
   }
 
   const getLevelClass = (level: string) => {
@@ -68,6 +114,10 @@ const TemperaturePage: React.FC = () => {
     if (level === 'warning') return 'warning'
     return 'danger'
   }
+
+  const existingReview = currentSegment
+    ? getAbnormalReview(currentSegment.id)
+    : undefined
 
   return (
     <>
@@ -164,10 +214,33 @@ const TemperaturePage: React.FC = () => {
           </Text>
         </View>
 
+        {totalAbnormalCount > 0 && (
+          <View className={styles.reviewSummary}>
+            <View className={styles.reviewSummaryLeft}>
+              <Text className={styles.reviewSummaryIcon}>📝</Text>
+              <View>
+                <Text className={styles.reviewSummaryTitle}>异常片段复核</Text>
+                <Text className={styles.reviewSummaryDesc}>
+                  已复核 {reviewedCount} / {totalAbnormalCount} 段
+                </Text>
+              </View>
+            </View>
+            <Text className={styles.reviewSummaryTip}>
+              点击下方异常片段中的「立即复核」进行货品外观检查
+            </Text>
+          </View>
+        )}
+
         <Text className={styles.sectionTitle}>分阶段温度记录</Text>
 
         {tempNodes.map(node => (
-          <TempNodeCard key={node.type} node={node} />
+          <TempNodeCard
+            key={node.type}
+            node={node}
+            showReview={node.abnormalCount > 0}
+            abnormalReviews={form.abnormalReviews}
+            onReviewSegment={handleReviewSegment}
+          />
         ))}
       </ScrollView>
 
@@ -179,7 +252,15 @@ const TemperaturePage: React.FC = () => {
           <Text>下一步：确认收货</Text>
         </View>
       </View>
-      </>
+
+      <AbnormalReviewModal
+        visible={reviewModalVisible}
+        segment={currentSegment}
+        existingReview={existingReview}
+        onClose={() => setReviewModalVisible(false)}
+        onSave={handleSaveReview}
+      />
+    </>
   )
 }
 

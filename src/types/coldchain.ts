@@ -8,6 +8,10 @@ export type SyncStatus = 'pending' | 'syncing' | 'synced' | 'failed'
 
 export type JudgeSuggestion = 'accept' | 'partial_reject' | 'report_supervisor'
 
+export type ProductAppearance = 'normal' | 'slight_soft' | 'obvious_soft' | 'thawed'
+
+export type HqDisposition = 'accepted' | 'partial_rejected' | 'returned' | 'discounted' | 'pending_review'
+
 export interface AbnormalSegment {
   id: string
   startTime: string
@@ -17,6 +21,25 @@ export interface AbnormalSegment {
   minTemp: number
   avgTemp: number
   carrierRemark: string
+}
+
+export interface AbnormalReview {
+  segmentId: string
+  appearance: ProductAppearance
+  supplementPhotos: string[]
+  reviewNote: string
+  reviewedAt: string
+  reviewerName: string
+}
+
+export interface HqCallbackResult {
+  confirmNo: string
+  confirmedAt: string
+  handlerName: string
+  handlingOpinion: string
+  finalDisposition?: HqDisposition
+  finalDispositionNote?: string
+  disposedAt?: string
 }
 
 export interface TempNode {
@@ -68,6 +91,7 @@ export interface ReceiptRecord {
   overallStatus: TempStatus
   tempNodes: TempNode[]
   totalAbnormalMinutes: number
+  abnormalReviews: AbnormalReview[]
   conclusion: ReceiptConclusion
   receiverName: string
   boxCountExpected: number
@@ -83,6 +107,7 @@ export interface ReceiptRecord {
   syncAttempts: number
   submittedAt: string
   syncedAt?: string
+  hqCallback?: HqCallbackResult
   createdAt: string
 }
 
@@ -96,6 +121,7 @@ export interface ReceiptForm {
   driverName: string
   driverSignature: string
   driverConfirmedAt: string
+  abnormalReviews: AbnormalReview[]
 }
 
 export interface UserInfo {
@@ -114,4 +140,15 @@ export interface JudgeResult {
   title: string
   description: string
   details: string[]
+}
+
+export interface SearchFilters {
+  keyword: string
+  dateFrom?: string
+  dateTo?: string
+  tempStatus?: TempStatus | 'all'
+  conclusion?: ReceiptConclusion | 'all'
+  onlyAbnormal?: boolean
+  onlyPendingSupervisor?: boolean
+  syncStatus?: SyncStatus | 'all'
 }

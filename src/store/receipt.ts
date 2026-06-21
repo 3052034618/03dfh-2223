@@ -8,9 +8,15 @@ import type {
   ReceiptRecord,
   SyncStatus,
   JudgeResult,
-  JudgeSuggestion
+  JudgeSuggestion,
+  AbnormalReview,
+  ProductAppearance,
+  SearchFilters,
+  HqCallbackResult,
+  HqDisposition
 } from '@/types/coldchain'
 import { findWaybillByNo, generateTempNodes, mockReceiptRecords, mockUser } from '@/data/mockData'
+import { loadRecordsFromStorage, saveRecordsToStorage } from '@/utils/storage'
 
 interface ReceiptState {
   currentStep: number
@@ -23,6 +29,10 @@ interface ReceiptState {
   currentRecordId: string | null
   isScanning: boolean
   scanError: string | null
+  isInitialized: boolean
+
+  initFromStorage: () => void
+  persistRecords: () => void
 
   setWaybillInfo: (info: WaybillInfo) => void
   setTempNodes: (nodes: TempNode[]) => void
@@ -38,6 +48,11 @@ interface ReceiptState {
   prevStep: () => void
   reset: () => void
 
+  addAbnormalReview: (review: Omit<AbnormalReview, 'reviewedAt' | 'reviewerName'>) => void
+  updateAbnormalReview: (segmentId: string, updates: Partial<AbnormalReview>) => void
+  removeAbnormalReview: (segmentId: string) => void
+  getAbnormalReview: (segmentId: string) => AbnormalReview | undefined
+
   scanWaybill: () => Promise<WaybillInfo | null>
   queryWaybill: (waybillNo: string) => WaybillInfo | undefined
 
@@ -48,6 +63,9 @@ interface ReceiptState {
   retryAllFailed: () => Promise<void>
   getRecordById: (id: string) => ReceiptRecord | undefined
   filterRecords: (filter: string) => ReceiptRecord[]
+  searchRecords: (filters: SearchFilters) => ReceiptRecord[]
+
+  simulateHqCallback: (recordId: string) => void
 }
 
 const initialForm: ReceiptForm = {
@@ -59,11 +77,21 @@ const initialForm: ReceiptForm = {
   remark: '',
   driverName: '',
   driverSignature: '',
-  driverConfirmedAt: ''
+  driverConfirmedAt: '',
+  abnormalReviews: []
 }
 
 const generateId = (): string => {
   return 'REC' + Date.now() + Math.random().toString(36).substr(2, 4).toUpperCase()
+}
+
+const generateConfirmNo = (): string => {
+  const date = new Date()
+  const dateStr = date.getFullYear().toString() +
+    (date.getMonth() + 1).toString().padStart(2, '0') +
+    date.getDate().toString().padStart(2, '0')
+  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+  return `HQ${dateStr}${random}`
 }
 
 const simulateNetworkDelay = (ms: number): Promise<void> =>
@@ -72,6 +100,51 @@ const simulateNetworkDelay = (ms: number): Promise<void> =>
 const simulateSyncSuccess = (): Promise<boolean> =>
   new Promise(resolve => setTimeout(() => resolve(Math.random() > 0.1), 800 + Math.random() * 1200))
 
+const simulateHqDelay = (): Promise<void> =>
+  new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 5000))
+
+const generateHqCallback = (conclusion: ReceiptConclusion, overallStatus: TempStatus): HqCallbackResult => {
+  const now = new Date()
+  const handlers = ['张主管', '李经理', '王总监', '赵专员']
+  const handlerName = handlers[Math.floor(Math.random() * handlers.length)]
+
+  let finalDisposition: HqDisposition | undefined
+  let finalDispositionNote: string | undefined
+
+  if (conclusion === 'accepted') {
+    finalDisposition = 'accepted'
+    finalDispositionNote = '温度在允许范围内，货品正常，同意门店接收'
+  } else if (conclusion === 'partial_rejected') {
+    if (overallStatus === 'warning') {
+      finalDisposition = 'partial_rejected'
+      finalDispositionNote = '已确认异常货品，同意部分拒收，拒收部分由承运方承担'
+    } else {
+      finalDisposition = 'discounted'
+      finalDispositionNote = '异常时间较长，建议按8折接收，损失由承运方承担'
+    }
+  } else if (conclusion === 'pending_supervisor') {
+    if (overallStatus === 'abnormal') {
+      finalDisposition = 'returned'
+      finalDispositionNote = '温度严重超标，存在食品安全风险，整单退回承运方'
+    } else {
+      finalDisposition = 'accepted'
+      finalDispositionNote = '经评估，货品未受影响，同意正常接收'
+    }
+  }
+
+  return {
+    confirmNo: generateConfirmNo(),
+    confirmedAt: now.toISOString(),
+    handlerName,
+    handlingOpinion: conclusion === 'accepted'
+      ? '已核查冷链记录，同意门店处理意见'
+      : '已收到门店验收报告，正在复核中',
+    finalDisposition,
+    finalDispositionNote,
+    disposedAt: finalDisposition ? new Date(now.getTime() + 60000).toISOString() : undefined
+  }
+}
+
 export const useReceiptStore = create<ReceiptState>((set, get) => ({
   currentStep: 0,
   waybillInfo: null,
@@ -79,10 +152,37 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
   overallStatus: 'normal',
   totalAbnormalMinutes: 0,
   form: initialForm,
-  records: [...mockReceiptRecords],
+  records: [],
   currentRecordId: null,
   isScanning: false,
   scanError: null,
+  isInitialized: false,
+
+  initFromStorage: () => {
+    if (get().isInitialized) return
+
+    const storedRecords = loadRecordsFromStorage()
+    if (storedRecords && storedRecords.length > 0) {
+      set({ records: storedRecords, isInitialized: true })
+    } else {
+      set({ records: [...mockReceiptRecords], isInitialized: true })
+      saveRecordsToStorage([...mockReceiptRecords])
+    }
+
+    const pendingRecords = get().records.filter(r => r.syncStatus !== 'synced')
+    pendingRecords.forEach(record => {
+      if (record.syncStatus === 'pending') {
+        setTimeout(() => {
+          get().updateRecordSyncStatus(record.id, 'syncing')
+          get().retrySync(record.id)
+        }, 500 + Math.random() * 1000)
+      }
+    })
+  },
+
+  persistRecords: () => {
+    saveRecordsToStorage(get().records)
+  },
 
   setWaybillInfo: (info) => {
     set({
@@ -251,6 +351,52 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
     })
   },
 
+  addAbnormalReview: (review) => {
+    const now = new Date().toISOString()
+    const newReview: AbnormalReview = {
+      ...review,
+      reviewedAt: now,
+      reviewerName: mockUser.name
+    }
+    set(state => {
+      const existingIndex = state.form.abnormalReviews.findIndex(r => r.segmentId === review.segmentId)
+      let newReviews
+      if (existingIndex >= 0) {
+        newReviews = [...state.form.abnormalReviews]
+        newReviews[existingIndex] = newReview
+      } else {
+        newReviews = [...state.form.abnormalReviews, newReview]
+      }
+      return {
+        form: { ...state.form, abnormalReviews: newReviews }
+      }
+    })
+  },
+
+  updateAbnormalReview: (segmentId, updates) => {
+    set(state => ({
+      form: {
+        ...state.form,
+        abnormalReviews: state.form.abnormalReviews.map(r =>
+          r.segmentId === segmentId ? { ...r, ...updates } : r
+        )
+      }
+    }))
+  },
+
+  removeAbnormalReview: (segmentId) => {
+    set(state => ({
+      form: {
+        ...state.form,
+        abnormalReviews: state.form.abnormalReviews.filter(r => r.segmentId !== segmentId)
+      }
+    }))
+  },
+
+  getAbnormalReview: (segmentId) => {
+    return get().form.abnormalReviews.find(r => r.segmentId === segmentId)
+  },
+
   scanWaybill: async (): Promise<WaybillInfo | null> => {
     const Taro = (await import('@tarojs/taro')).default
     set({ isScanning: true, scanError: null })
@@ -333,6 +479,7 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
       overallStatus,
       tempNodes,
       totalAbnormalMinutes,
+      abnormalReviews: [...form.abnormalReviews],
       conclusion: form.conclusion,
       receiverName: mockUser.name,
       boxCountExpected: form.boxCountExpected,
@@ -351,6 +498,7 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
 
     get().addRecord(record)
     set({ currentRecordId: record.id })
+    get().persistRecords()
 
     setTimeout(() => {
       get().updateRecordSyncStatus(record.id, 'syncing')
@@ -364,6 +512,7 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
     set(state => ({
       records: [record, ...state.records]
     }))
+    setTimeout(() => get().persistRecords(), 0)
   },
 
   updateRecordSyncStatus: (id, status, error) => {
@@ -387,13 +536,19 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
         return r
       })
     }))
+    setTimeout(() => get().persistRecords(), 0)
   },
 
   retrySync: async (id) => {
     const record = get().getRecordById(id)
     if (!record) return
 
-    if (record.syncStatus === 'synced') return
+    if (record.syncStatus === 'synced') {
+      if (!record.hqCallback) {
+        get().simulateHqCallback(id)
+      }
+      return
+    }
 
     get().updateRecordSyncStatus(id, 'syncing')
     await simulateNetworkDelay(500)
@@ -402,6 +557,7 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
 
     if (success) {
       get().updateRecordSyncStatus(id, 'synced')
+      get().simulateHqCallback(id)
     } else {
       if (record.syncAttempts >= 2) {
         get().updateRecordSyncStatus(id, 'failed', '网络连接超时，请检查网络后重试')
@@ -420,6 +576,27 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
     }
   },
 
+  simulateHqCallback: async (recordId) => {
+    const record = get().getRecordById(recordId)
+    if (!record || record.hqCallback) return
+
+    await simulateHqDelay()
+
+    const currentRecord = get().getRecordById(recordId)
+    if (!currentRecord || currentRecord.syncStatus !== 'synced') return
+
+    const hqCallback = generateHqCallback(record.conclusion, record.overallStatus)
+
+    set(state => ({
+      records: state.records.map(r =>
+        r.id === recordId
+          ? { ...r, hqCallback }
+          : r
+      )
+    }))
+    setTimeout(() => get().persistRecords(), 0)
+  },
+
   getRecordById: (id) => {
     return get().records.find(r => r.id === id)
   },
@@ -435,5 +612,57 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
     if (filter === 'partial_rejected') return records.filter(r => r.conclusion === 'partial_rejected')
     if (filter === 'pending_supervisor') return records.filter(r => r.conclusion === 'pending_supervisor')
     return records
+  },
+
+  searchRecords: (filters) => {
+    const { records } = get()
+    let result = [...records]
+
+    if (filters.keyword && filters.keyword.trim()) {
+      const keyword = filters.keyword.trim().toLowerCase()
+      result = result.filter(r =>
+        r.waybillNo.toLowerCase().includes(keyword) ||
+        r.productName.toLowerCase().includes(keyword) ||
+        r.driverName.toLowerCase().includes(keyword) ||
+        r.warehouse.toLowerCase().includes(keyword) ||
+        r.vehicleNo.toLowerCase().includes(keyword)
+      )
+    }
+
+    if (filters.dateFrom) {
+      result = result.filter(r => r.createdAt >= filters.dateFrom!)
+    }
+
+    if (filters.dateTo) {
+      result = result.filter(r => r.createdAt <= filters.dateTo + ' 23:59:59')
+    }
+
+    if (filters.tempStatus && filters.tempStatus !== 'all') {
+      result = result.filter(r => r.overallStatus === filters.tempStatus)
+    }
+
+    if (filters.conclusion && filters.conclusion !== 'all') {
+      result = result.filter(r => r.conclusion === filters.conclusion)
+    }
+
+    if (filters.onlyAbnormal) {
+      result = result.filter(r => r.overallStatus !== 'normal')
+    }
+
+    if (filters.onlyPendingSupervisor) {
+      result = result.filter(r => r.conclusion === 'pending_supervisor')
+    }
+
+    if (filters.syncStatus && filters.syncStatus !== 'all') {
+      if (filters.syncStatus === 'pending') {
+        result = result.filter(r => r.syncStatus !== 'synced')
+      } else {
+        result = result.filter(r => r.syncStatus === filters.syncStatus)
+      }
+    }
+
+    return result.sort((a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
   }
 }))

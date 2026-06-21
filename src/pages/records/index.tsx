@@ -9,16 +9,16 @@ import {
   formatDateTime,
   getConclusionLabel,
   getConclusionColor,
-  getSyncStatusLabel,
+  getSyncStatusBizLabel,
   getSyncStatusColor
 } from '@/utils/format'
-import type { TempStatus, ReceiptConclusion, ReceiptRecord } from '@/types/coldchain'
+import type { TempStatus, ReceiptConclusion, ReceiptRecord, SearchFilters } from '@/types/coldchain'
 
 type FilterType = 'all' | 'pending_sync' | TempStatus | ReceiptConclusion
 
-const filters: { key: FilterType; label: string }[] = [
+const quickFilters: { key: FilterType; label: string }[] = [
   { key: 'all', label: '全部' },
-  { key: 'pending_sync', label: '待同步' },
+  { key: 'pending_sync', label: '待回传' },
   { key: 'normal', label: '温度达标' },
   { key: 'warning', label: '温度偏高' },
   { key: 'abnormal', label: '温度异常' },
@@ -29,20 +29,43 @@ const filters: { key: FilterType; label: string }[] = [
 
 const RecordsPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all')
+  const [searchKeyword, setSearchKeyword] = useState('')
+  const [showFilters, setShowFilters] = useState(false)
+  const [onlyAbnormal, setOnlyAbnormal] = useState(false)
+  const [onlyPendingSupervisor, setOnlyPendingSupervisor] = useState(false)
+
   const records = useReceiptStore(state => state.records)
-  const filterRecords = useReceiptStore(state => state.filterRecords)
+  const searchRecords = useReceiptStore(state => state.searchRecords)
   const retrySync = useReceiptStore(state => state.retrySync)
   const retryAllFailed = useReceiptStore(state => state.retryAllFailed)
   const [retryingId, setRetryingId] = useState<string | null>(null)
 
+  const searchFilters = useMemo<SearchFilters>(() => {
+    const filters: SearchFilters = {
+      keyword: searchKeyword,
+      onlyAbnormal,
+      onlyPendingSupervisor
+    }
+    if (activeFilter === 'pending_sync') {
+      filters.syncStatus = 'pending'
+    } else if (activeFilter === 'normal' || activeFilter === 'warning' || activeFilter === 'abnormal') {
+      filters.tempStatus = activeFilter
+    } else if (activeFilter === 'accepted' || activeFilter === 'partial_rejected' || activeFilter === 'pending_supervisor') {
+      filters.conclusion = activeFilter
+    }
+    return filters
+  }, [searchKeyword, activeFilter, onlyAbnormal, onlyPendingSupervisor])
+
   const filteredRecords = useMemo(() => {
-    return filterRecords(activeFilter)
-  }, [records, activeFilter, filterRecords])
+    return searchRecords(searchFilters)
+  }, [records, searchRecords, searchFilters])
 
   const stats = useMemo(() => ({
     total: records.length,
     pending: records.filter(r => r.syncStatus !== 'synced').length,
-    failed: records.filter(r => r.syncStatus === 'failed').length
+    failed: records.filter(r => r.syncStatus === 'failed').length,
+    abnormal: records.filter(r => r.overallStatus !== 'normal').length,
+    pendingSupervisor: records.filter(r => r.conclusion === 'pending_supervisor').length
   }), [records])
 
   const handleRecordClick = (record: ReceiptRecord) => {
@@ -79,14 +102,18 @@ const RecordsPage: React.FC = () => {
     }
   }
 
-  const handlePullDownRefresh = () => {
-    setTimeout(() => {
-      Taro.stopPullDownRefresh()
-    }, 1000)
+  const handleClearFilters = () => {
+    setSearchKeyword('')
+    setOnlyAbnormal(false)
+    setOnlyPendingSupervisor(false)
+    setActiveFilter('all')
   }
+
+  const hasActiveFilters = onlyAbnormal || onlyPendingSupervisor || searchKeyword
 
   const renderSyncBadge = (record: ReceiptRecord) => {
     const showRetry = record.syncStatus === 'failed' || record.syncStatus === 'pending'
+    const hasHq = !!record.hqCallback
 
     return (
       <View className={styles.syncRow}>
@@ -97,7 +124,7 @@ const RecordsPage: React.FC = () => {
             color: getSyncStatusColor(record.syncStatus)
           }}>
           {record.syncStatus === 'syncing' ? '⏳ ' : record.syncStatus === 'failed' ? '❌ ' : ''}
-          {getSyncStatusLabel(record.syncStatus)}
+          {getSyncStatusBizLabel(record.syncStatus, hasHq)}
         </Text>
         {showRetry && (
           <Text
@@ -116,7 +143,66 @@ const RecordsPage: React.FC = () => {
     <ScrollView
       scrollY
       className={styles.container}
-      onPullDownRefresh={handlePullDownRefresh}>
+      enhanced
+      showScrollbar={false}>
+      <View className={styles.searchBar}>
+        <View className={styles.searchInputWrap}>
+          <Text className={styles.searchIcon}>🔍</Text>
+          <input
+            className={styles.searchInput}
+            placeholder="搜索运单号、货品名、司机、仓库..."
+            value={searchKeyword}
+            onInput={(e) => setSearchKeyword((e as any).detail.value)}
+            confirmType="search"
+          />
+          {searchKeyword && (
+            <Text
+              className={styles.searchClear}
+              onClick={() => setSearchKeyword('')}>
+              ✕
+            </Text>
+          )}
+        </View>
+        <Text
+          className={classnames(styles.filterToggle, { [styles.active]: showFilters || hasActiveFilters })}
+          onClick={() => setShowFilters(!showFilters)}>
+          {showFilters ? '收起' : '筛选'}
+          {(onlyAbnormal || onlyPendingSupervisor) && (
+            <Text className={styles.filterDot}>●</Text>
+          )}
+        </Text>
+      </View>
+
+      {showFilters && (
+        <View className={styles.filterPanel}>
+          <View className={styles.filterGroup}>
+            <Text className={styles.filterGroupTitle}>组合筛选</Text>
+            <View className={styles.filterOptions}>
+              <View
+                className={classnames(styles.filterOption, { [styles.selected]: onlyAbnormal })}
+                onClick={() => setOnlyAbnormal(!onlyAbnormal)}>
+                <Text className={styles.optionCheck}>{onlyAbnormal ? '✓' : ''}</Text>
+                <Text>只看异常温度</Text>
+              </View>
+              <View
+                className={classnames(styles.filterOption, { [styles.selected]: onlyPendingSupervisor })}
+                onClick={() => setOnlyPendingSupervisor(!onlyPendingSupervisor)}>
+                <Text className={styles.optionCheck}>{onlyPendingSupervisor ? '✓' : ''}</Text>
+                <Text>只看待主管确认</Text>
+              </View>
+            </View>
+          </View>
+
+          {hasActiveFilters && (
+            <View className={styles.filterActions}>
+              <Text className={styles.resetBtn} onClick={handleClearFilters}>
+                重置筛选
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
+
       <View className={styles.statsBar}>
         <View className={styles.statItem}>
           <Text className={styles.statValue}>{stats.total}</Text>
@@ -127,27 +213,26 @@ const RecordsPage: React.FC = () => {
           <Text className={styles.statValue} style={{ color: '#FF7D00' }}>
             {stats.pending}
           </Text>
-          <Text className={styles.statLabel}>待同步</Text>
+          <Text className={styles.statLabel}>待回传</Text>
         </View>
         <View className={styles.statDivider} />
         <View className={styles.statItem}>
           <Text className={styles.statValue} style={{ color: '#F53F3F' }}>
-            {stats.failed}
+            {stats.abnormal}
           </Text>
-          <Text className={styles.statLabel}>同步失败</Text>
+          <Text className={styles.statLabel}>温度异常</Text>
         </View>
-        {stats.failed > 0 && (
-          <>
-            <View className={styles.statDivider} />
-            <Text className={styles.retryAllBtn} onClick={handleRetryAll}>
-              全部重试
-            </Text>
-          </>
-        )}
+        <View className={styles.statDivider} />
+        <View className={styles.statItem}>
+          <Text className={styles.statValue} style={{ color: '#165DFF' }}>
+            {stats.pendingSupervisor}
+          </Text>
+          <Text className={styles.statLabel}>待主管</Text>
+        </View>
       </View>
 
       <ScrollView scrollX className={styles.filterBar}>
-        {filters.map(filter => (
+        {quickFilters.map(filter => (
           <View
             key={filter.key}
             className={classnames(styles.filterItem, {
@@ -158,6 +243,16 @@ const RecordsPage: React.FC = () => {
           </View>
         ))}
       </ScrollView>
+
+      {stats.failed > 0 && (
+        <View className={styles.failedTip} onClick={handleRetryAll}>
+          <Text className={styles.failedTipIcon}>⚠️</Text>
+          <Text className={styles.failedTipText}>
+            {stats.failed} 条记录回传失败，点击立即重试
+          </Text>
+          <Text className={styles.failedTipArrow}>→</Text>
+        </View>
+      )}
 
       {filteredRecords.length > 0 ? (
         filteredRecords.map(record => (
@@ -213,6 +308,9 @@ const RecordsPage: React.FC = () => {
               {record.photos.length > 0 && (
                 <Text className={styles.photoCount}>📷 {record.photos.length}张</Text>
               )}
+              {record.hqCallback && (
+                <Text className={styles.hqBadge}>🏢 总部已确认</Text>
+              )}
             </View>
           </View>
         ))
@@ -220,6 +318,11 @@ const RecordsPage: React.FC = () => {
         <View className={styles.emptyState}>
           <Text className={styles.emptyIcon}>📋</Text>
           <Text className={styles.emptyText}>暂无相关验收记录</Text>
+          {hasActiveFilters && (
+            <Text className={styles.emptySubText} onClick={handleClearFilters}>
+              清除筛选条件
+            </Text>
+          )}
         </View>
       )}
     </ScrollView>

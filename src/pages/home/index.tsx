@@ -8,7 +8,7 @@ import {
   formatDateTime,
   getConclusionLabel,
   getConclusionColor,
-  getSyncStatusLabel,
+  getSyncStatusBizLabel,
   getSyncStatusColor
 } from '@/utils/format'
 import { useReceiptStore } from '@/store/receipt'
@@ -36,7 +36,7 @@ const HomePage: React.FC = () => {
 
   const todayRecords = records.filter(r => r.createdAt.startsWith('2024-06-15'))
   const recentRecords = records.slice(0, 3)
-  const pendingCount = records.filter(r => r.syncStatus !== 'synced').length
+  const pendingCount = records.filter(r => r.syncStatus === 'pending' || r.syncStatus === 'failed').length
 
   const handleScan = async () => {
     reset()
@@ -235,7 +235,7 @@ const HomePage: React.FC = () => {
                     style={{
                       color: getSyncStatusColor(record.syncStatus)
                     }}>
-                    ● {getSyncStatusLabel(record.syncStatus)}
+                    ● {getSyncStatusBizLabel(record.syncStatus, !!record.hqCallback)}
                   </Text>
                 </View>
 

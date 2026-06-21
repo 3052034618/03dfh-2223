@@ -1,16 +1,29 @@
 import React, { useState } from 'react'
 import { View, Text } from '@tarojs/components'
+import classnames from 'classnames'
 import styles from './index.module.scss'
 import TempStatusBadge from '@/components/TempStatusBadge'
-import type { TempNode } from '@/types/coldchain'
-import { formatDateTime, formatDuration, formatTemp } from '@/utils/format'
+import type { TempNode, AbnormalReview } from '@/types/coldchain'
+import { formatDateTime, formatDuration, formatTemp, getProductAppearanceLabel, getProductAppearanceColor } from '@/utils/format'
 
 interface TempNodeCardProps {
   node: TempNode
+  showReview?: boolean
+  abnormalReviews?: AbnormalReview[]
+  onReviewSegment?: (segmentId: string) => void
 }
 
-const TempNodeCard: React.FC<TempNodeCardProps> = ({ node }) => {
+const TempNodeCard: React.FC<TempNodeCardProps> = ({
+  node,
+  showReview = false,
+  abnormalReviews = [],
+  onReviewSegment
+}) => {
   const [expanded, setExpanded] = useState(false)
+
+  const getReview = (segmentId: string) => {
+    return abnormalReviews.find(r => r.segmentId === segmentId)
+  }
 
   const handleToggle = () => {
     setExpanded(!expanded)
@@ -59,39 +72,87 @@ const TempNodeCard: React.FC<TempNodeCardProps> = ({ node }) => {
             异常片段详情
           </Text>
 
-          {!expanded && node.abnormalSegments.slice(0, 1).map(seg => (
-            <View key={seg.id} className={styles.abnormalItem}>
-              <Text className={styles.abnormalTime}>
-                {formatDateTime(seg.startTime, 'HH:mm')} - {formatDateTime(seg.endTime, 'HH:mm')}
-              </Text>
-              <Text className={styles.abnormalDuration}>
-                持续 {formatDuration(seg.durationMinutes)}
-              </Text>
-              <Text className={styles.abnormalTemps}>
-                最高 {formatTemp(seg.maxTemp)} / 最低 {formatTemp(seg.minTemp)} / 平均 {formatTemp(seg.avgTemp)}
-              </Text>
-              <Text className={styles.abnormalRemark}>
-                承运方备注：{seg.carrierRemark}
-              </Text>
-            </View>
-          ))}
+          {!expanded && node.abnormalSegments.slice(0, 1).map(seg => {
+            const review = getReview(seg.id)
+            return (
+              <View key={seg.id} className={styles.abnormalItem}>
+                <Text className={styles.abnormalTime}>
+                  {formatDateTime(seg.startTime, 'HH:mm')} - {formatDateTime(seg.endTime, 'HH:mm')}
+                </Text>
+                <Text className={styles.abnormalDuration}>
+                  持续 {formatDuration(seg.durationMinutes)}
+                </Text>
+                <Text className={styles.abnormalTemps}>
+                  最高 {formatTemp(seg.maxTemp)} / 最低 {formatTemp(seg.minTemp)} / 平均 {formatTemp(seg.avgTemp)}
+                </Text>
+                <Text className={styles.abnormalRemark}>
+                  承运方备注：{seg.carrierRemark}
+                </Text>
+                {showReview && (
+                  <View className={styles.reviewRow}>
+                    {review ? (
+                      <View
+                        className={styles.reviewedBadge}
+                        style={{
+                          background: `${getProductAppearanceColor(review.appearance)}15`,
+                          color: getProductAppearanceColor(review.appearance)
+                        }}
+                        onClick={() => onReviewSegment?.(seg.id)}>
+                        ✓ {getProductAppearanceLabel(review.appearance)}
+                      </View>
+                    ) : (
+                      <View
+                        className={styles.reviewBtn}
+                        onClick={() => onReviewSegment?.(seg.id)}>
+                        立即复核 →
+                      </View>
+                    )}
+                  </View>
+                )}
+              </View>
+            )
+          })}
 
-          {expanded && node.abnormalSegments.map(seg => (
-            <View key={seg.id} className={styles.abnormalItem}>
-              <Text className={styles.abnormalTime}>
-                {formatDateTime(seg.startTime, 'HH:mm')} - {formatDateTime(seg.endTime, 'HH:mm')}
-              </Text>
-              <Text className={styles.abnormalDuration}>
-                持续 {formatDuration(seg.durationMinutes)}
-              </Text>
-              <Text className={styles.abnormalTemps}>
-                最高 {formatTemp(seg.maxTemp)} / 最低 {formatTemp(seg.minTemp)} / 平均 {formatTemp(seg.avgTemp)}
-              </Text>
-              <Text className={styles.abnormalRemark}>
-                承运方备注：{seg.carrierRemark}
-              </Text>
-            </View>
-          ))}
+          {expanded && node.abnormalSegments.map(seg => {
+            const review = getReview(seg.id)
+            return (
+              <View key={seg.id} className={styles.abnormalItem}>
+                <Text className={styles.abnormalTime}>
+                  {formatDateTime(seg.startTime, 'HH:mm')} - {formatDateTime(seg.endTime, 'HH:mm')}
+                </Text>
+                <Text className={styles.abnormalDuration}>
+                  持续 {formatDuration(seg.durationMinutes)}
+                </Text>
+                <Text className={styles.abnormalTemps}>
+                  最高 {formatTemp(seg.maxTemp)} / 最低 {formatTemp(seg.minTemp)} / 平均 {formatTemp(seg.avgTemp)}
+                </Text>
+                <Text className={styles.abnormalRemark}>
+                  承运方备注：{seg.carrierRemark}
+                </Text>
+                {showReview && (
+                  <View className={styles.reviewRow}>
+                    {review ? (
+                      <View
+                        className={styles.reviewedBadge}
+                        style={{
+                          background: `${getProductAppearanceColor(review.appearance)}15`,
+                          color: getProductAppearanceColor(review.appearance)
+                        }}
+                        onClick={() => onReviewSegment?.(seg.id)}>
+                        ✓ {getProductAppearanceLabel(review.appearance)}
+                      </View>
+                    ) : (
+                      <View
+                        className={styles.reviewBtn}
+                        onClick={() => onReviewSegment?.(seg.id)}>
+                        立即复核 →
+                      </View>
+                    )}
+                  </View>
+                )}
+              </View>
+            )
+          })}
 
           {node.abnormalSegments.length > 1 && (
             <View className={styles.expandBtn} onClick={handleToggle}>

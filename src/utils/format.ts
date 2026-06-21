@@ -1,5 +1,12 @@
 import dayjs from 'dayjs'
-import type { TempStatus, ReceiptConclusion, SyncStatus, JudgeSuggestion } from '@/types/coldchain'
+import type {
+  TempStatus,
+  ReceiptConclusion,
+  SyncStatus,
+  JudgeSuggestion,
+  ProductAppearance,
+  HqDisposition
+} from '@/types/coldchain'
 
 export const formatDateTime = (dateStr: string, format = 'YYYY-MM-DD HH:mm'): string => {
   return dayjs(dateStr).format(format)
@@ -96,4 +103,59 @@ export const getJudgeSuggestionColor = (suggestion: JudgeSuggestion): string => 
     report_supervisor: '#F53F3F'
   }
   return map[suggestion]
+}
+
+export const getProductAppearanceLabel = (appearance: ProductAppearance): string => {
+  const map: Record<ProductAppearance, string> = {
+    normal: '外观正常',
+    slight_soft: '轻微发软',
+    obvious_soft: '明显软化',
+    thawed: '已解冻'
+  }
+  return map[appearance]
+}
+
+export const getProductAppearanceColor = (appearance: ProductAppearance): string => {
+  const map: Record<ProductAppearance, string> = {
+    normal: '#00B42A',
+    slight_soft: '#FF7D00',
+    obvious_soft: '#F53F3F',
+    thawed: '#CB2634'
+  }
+  return map[appearance]
+}
+
+export const getHqDispositionLabel = (disposition: HqDisposition): string => {
+  const map: Record<HqDisposition, string> = {
+    accepted: '同意接收',
+    partial_rejected: '部分拒收',
+    returned: '整单退回',
+    discounted: '打折接收',
+    pending_review: '待复核'
+  }
+  return map[disposition]
+}
+
+export const getHqDispositionColor = (disposition: HqDisposition): string => {
+  const map: Record<HqDisposition, string> = {
+    accepted: '#00B42A',
+    partial_rejected: '#FF7D00',
+    returned: '#F53F3F',
+    discounted: '#722ED1',
+    pending_review: '#165DFF'
+  }
+  return map[disposition]
+}
+
+export const getSyncStatusBizLabel = (status: SyncStatus, hasHqCallback?: boolean): string => {
+  if (hasHqCallback) {
+    return '总部已确认'
+  }
+  const map: Record<SyncStatus, string> = {
+    pending: '已提交待回传',
+    syncing: '回传中...',
+    synced: '已回传总部',
+    failed: '回传失败'
+  }
+  return map[status]
 }

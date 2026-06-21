@@ -6,6 +6,140 @@
   padding-bottom: calc(env(safe-area-inset-bottom) + 32rpx);
 }
 
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.searchInputWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  padding: 0 $spacing-md;
+  height: 72rpx;
+  box-shadow: $shadow-card;
+}
+
+.searchIcon {
+  font-size: 28rpx;
+  margin-right: $spacing-sm;
+  opacity: 0.6;
+}
+
+.searchInput {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.searchClear {
+  font-size: 28rpx;
+  color: $color-text-tertiary;
+  padding: $spacing-xs;
+  margin-left: $spacing-sm;
+}
+
+.filterToggle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 0 $spacing-md;
+  height: 72rpx;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  box-shadow: $shadow-card;
+  white-space: nowrap;
+
+  &.active {
+    color: $color-primary;
+    background: rgba(22, 93, 255, 0.08);
+  }
+}
+
+.filterDot {
+  position: absolute;
+  top: 8rpx;
+  right: 12rpx;
+  font-size: 16rpx;
+  color: $color-error;
+}
+
+.filterPanel {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.filterGroup {
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.filterGroupTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.filterOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.filterOption {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-section;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+
+  &.selected {
+    background: rgba(22, 93, 255, 0.1);
+    color: $color-primary;
+  }
+}
+
+.optionCheck {
+  width: 32rpx;
+  height: 32rpx;
+  text-align: center;
+  font-size: $font-size-xs;
+}
+
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.resetBtn {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  padding: $spacing-xs $spacing-md;
+}
+
 .statsBar {
   display: flex;
   align-items: center;
@@ -228,4 +362,45 @@
   background: $color-bg-section;
   padding: $spacing-xs $spacing-sm;
   border-radius: $radius-sm;
+}
+
+.hqBadge {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  background: rgba(22, 93, 255, 0.1);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+}
+
+.failedTip {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background: rgba(245, 63, 63, 0.08);
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.failedTipIcon {
+  font-size: 32rpx;
+}
+
+.failedTipText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-error;
+}
+
+.failedTipArrow {
+  font-size: $font-size-sm;
+  color: $color-error;
+}
+
+.emptySubText {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  margin-top: $spacing-md;
+  text-decoration: underline;
 }

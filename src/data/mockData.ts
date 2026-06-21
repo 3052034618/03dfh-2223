@@ -321,7 +321,26 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-15 09:32:00',
     syncedAt: '2024-06-15 09:32:05',
-    createdAt: '2024-06-15 09:32:00'
+    createdAt: '2024-06-15 09:32:00',
+    abnormalReviews: [
+      {
+        segmentId: 'ABN001',
+        appearance: 'normal',
+        supplementPhotos: [],
+        reviewNote: '外观检查无异常，货品保持冷冻状态',
+        reviewedAt: '2024-06-15 09:22:00',
+        reviewerName: '李明'
+      }
+    ],
+    hqCallback: {
+      confirmNo: 'HQ20240615-00892',
+      confirmedAt: '2024-06-15 10:15:00',
+      handlerName: '陈主管',
+      handlingOpinion: '温度波动在允许范围内，货品状态良好，同意正常入库',
+      finalDisposition: 'accepted',
+      finalDispositionNote: '全部正常接收，无异常处理',
+      disposedAt: '2024-06-15 10:15:00'
+    }
   },
   {
     id: 'REC002',
@@ -384,7 +403,34 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-14 08:10:00',
     syncedAt: '2024-06-14 08:10:08',
-    createdAt: '2024-06-14 08:10:00'
+    createdAt: '2024-06-14 08:10:00',
+    abnormalReviews: [
+      {
+        segmentId: 'ABN003',
+        appearance: 'slight_soft',
+        supplementPhotos: ['https://picsum.photos/id/326/600/400'],
+        reviewNote: '货品表面轻微结霜融化，手感偏软，但未完全解冻',
+        reviewedAt: '2024-06-14 07:58:00',
+        reviewerName: '李明'
+      },
+      {
+        segmentId: 'ABN004',
+        appearance: 'obvious_soft',
+        supplementPhotos: ['https://picsum.photos/id/570/600/400'],
+        reviewNote: '部分虾仁包装有明显水珠，外箱底部有湿痕',
+        reviewedAt: '2024-06-14 07:59:00',
+        reviewerName: '李明'
+      }
+    ],
+    hqCallback: {
+      confirmNo: 'HQ20240614-00634',
+      confirmedAt: '2024-06-14 09:30:00',
+      handlerName: '王经理',
+      handlingOpinion: '温度超标时间较长，需进一步评估货品质量。已联系品控部门确认。',
+      finalDisposition: 'partial_rejected',
+      finalDispositionNote: '确认拒收软化严重的5箱，其余193箱打折入库处理。短少2箱由承运方赔付。',
+      disposedAt: '2024-06-14 14:20:00'
+    }
   },
   {
     id: 'REC004',
@@ -477,7 +523,16 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-12 09:30:00',
     syncedAt: '2024-06-12 09:30:10',
-    createdAt: '2024-06-12 09:30:00'
+    createdAt: '2024-06-12 09:30:00',
+    hqCallback: {
+      confirmNo: 'HQ20240612-00812',
+      confirmedAt: '2024-06-12 11:00:00',
+      handlerName: '陈主管',
+      handlingOpinion: '门店已做部分拒收处理，3箱损坏货品由承运方承担。',
+      finalDisposition: 'partial_rejected',
+      finalDispositionNote: '已确认部分拒收，损坏货品从运费中扣除',
+      disposedAt: '2024-06-12 11:00:00'
+    }
   },
   {
     id: 'REC007',
@@ -599,7 +654,26 @@ export const mockReceiptRecords: ReceiptRecord[] = [
     syncAttempts: 1,
     submittedAt: '2024-06-10 09:15:00',
     syncedAt: '2024-06-10 09:15:05',
-    createdAt: '2024-06-10 09:15:00'
+    createdAt: '2024-06-10 09:15:00',
+    abnormalReviews: [
+      {
+        segmentId: 'ABN003',
+        appearance: 'thawed',
+        supplementPhotos: ['https://picsum.photos/id/326/600/400'],
+        reviewNote: '外箱明显潮湿，鸡翅表面有明显水珠，已完全解冻',
+        reviewedAt: '2024-06-10 09:02:00',
+        reviewerName: '王芳'
+      }
+    ],
+    hqCallback: {
+      confirmNo: 'HQ20240610-00678',
+      confirmedAt: '2024-06-10 10:00:00',
+      handlerName: '王经理',
+      handlingOpinion: '全程温度超标严重，货品已全部解冻，存在食品安全风险，作退回处理。',
+      finalDisposition: 'returned',
+      finalDispositionNote: '全部退回，运费由承运方承担，已通知司机原车带回',
+      disposedAt: '2024-06-10 10:30:00'
+    }
   }
 ]
 
