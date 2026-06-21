@@ -624,19 +624,15 @@ export const useReceiptStore = create<ReceiptState>((set, get) => ({
       )
     }
 
-    if (filters.dateFrom) {
+    if (filters.dateFrom || filters.dateTo) {
       result = result.filter(r => {
         const arrivalDate = r.actualArrival.substring(0, 10)
-        const createdDate = r.createdAt.substring(0, 10)
-        return arrivalDate >= filters.dateFrom! || createdDate >= filters.dateFrom!
-      })
-    }
-
-    if (filters.dateTo) {
-      result = result.filter(r => {
-        const arrivalDate = r.actualArrival.substring(0, 10)
-        const createdDate = r.createdAt.substring(0, 10)
-        return arrivalDate <= filters.dateTo! || createdDate <= filters.dateTo!
+        const submittedDate = r.submittedAt.substring(0, 10)
+        const arrivalInRange = (!filters.dateFrom || arrivalDate >= filters.dateFrom!) &&
+          (!filters.dateTo || arrivalDate <= filters.dateTo!)
+        const submittedInRange = (!filters.dateFrom || submittedDate >= filters.dateFrom!) &&
+          (!filters.dateTo || submittedDate <= filters.dateTo!)
+        return arrivalInRange || submittedInRange
       })
     }
 

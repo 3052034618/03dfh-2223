@@ -7,7 +7,8 @@ export default defineAppConfig({
     'pages/temperature/index',
     'pages/conclusion/index',
     'pages/record-detail/index',
-    'pages/stats/index'
+    'pages/stats/index',
+    'pages/reconciliation/index'
   ],
   window: {
     backgroundTextStyle: 'light',

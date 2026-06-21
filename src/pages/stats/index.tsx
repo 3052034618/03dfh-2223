@@ -4,7 +4,7 @@ import Taro from '@tarojs/taro'
 import classnames from 'classnames'
 import styles from './index.module.scss'
 import { useReceiptStore } from '@/store/receipt'
-import { formatDate } from '@/utils/format'
+import { formatDate, formatDateTime, getConclusionLabel, getHqDispositionLabel } from '@/utils/format'
 
 interface DateStat {
   date: string
@@ -22,16 +22,13 @@ const StatsPage: React.FC = () => {
 
   const filteredRecords = useMemo(() => {
     let result = [...records]
-    if (dateFrom) {
+    if (dateFrom || dateTo) {
       result = result.filter(r => {
-        const d = r.createdAt.substring(0, 10)
-        return d >= dateFrom
-      })
-    }
-    if (dateTo) {
-      result = result.filter(r => {
-        const d = r.createdAt.substring(0, 10)
-        return d <= dateTo
+        const ad = r.actualArrival.substring(0, 10)
+        const sd = r.submittedAt.substring(0, 10)
+        const arrivalInRange = (!dateFrom || ad >= dateFrom) && (!dateTo || ad <= dateTo)
+        const submittedInRange = (!dateFrom || sd >= dateFrom) && (!dateTo || sd <= dateTo)
+        return arrivalInRange || submittedInRange
       })
     }
     return result
@@ -52,7 +49,7 @@ const StatsPage: React.FC = () => {
   const dailyStats = useMemo(() => {
     const map = new Map<string, DateStat>()
     filteredRecords.forEach(r => {
-      const date = r.createdAt.substring(0, 10)
+      const date = r.submittedAt.substring(0, 10)
       const stat = map.get(date) || {
         date,
         total: 0,
@@ -85,28 +82,102 @@ const StatsPage: React.FC = () => {
   }
 
   const handleStatClick = (type: string) => {
-    let filterParam = ''
-    if (type === 'abnormal') filterParam = '&tempStatus=abnormal'
-    else if (type === 'warning') filterParam = '&tempStatus=warning'
-    else if (type === 'partialRejected') filterParam = '&conclusion=partial_rejected'
-    else if (type === 'pendingSupervisor') filterParam = '&conclusion=pending_supervisor'
-    else if (type === 'syncFailed') filterParam = '&syncStatus=failed'
+    const filter: Record<string, any> = {}
+    if (type === 'abnormal') filter.tempStatus = 'abnormal'
+    else if (type === 'warning') filter.tempStatus = 'warning'
+    else if (type === 'partialRejected') filter.conclusion = 'partial_rejected'
+    else if (type === 'pendingSupervisor') filter.conclusion = 'pending_supervisor'
+    else if (type === 'syncFailed') filter.syncStatus = 'failed'
+    if (dateFrom) filter.dateFrom = dateFrom
+    if (dateTo) filter.dateTo = dateTo
 
-    Taro.navigateTo({
-      url: `/pages/records/index?fromStats=1${filterParam}${dateFrom ? '&dateFrom=' + dateFrom : ''}${dateTo ? '&dateTo=' + dateTo : ''}`
-    })
+    ;(Taro as any).__pendingRecordsFilter = filter
+    Taro.switchTab({ url: '/pages/records/index' })
   }
 
   const handleDailyStatClick = (stat: DateStat, type: string) => {
-    let filterParam = ''
-    if (type === 'abnormal') filterParam = '&onlyAbnormal=1'
-    else if (type === 'partialRejected') filterParam = '&conclusion=partial_rejected'
-    else if (type === 'pendingSupervisor') filterParam = '&conclusion=pending_supervisor'
-    else if (type === 'syncFailed') filterParam = '&syncStatus=failed'
+    const filter: Record<string, any> = { dateFrom: stat.date, dateTo: stat.date }
+    if (type === 'abnormal') filter.onlyAbnormal = true
+    else if (type === 'partialRejected') filter.conclusion = 'partial_rejected'
+    else if (type === 'pendingSupervisor') filter.conclusion = 'pending_supervisor'
+    else if (type === 'syncFailed') filter.syncStatus = 'failed'
 
-    Taro.navigateTo({
-      url: `/pages/records/index?fromStats=1&dateFrom=${stat.date}&dateTo=${stat.date}${filterParam}`
+    ;(Taro as any).__pendingRecordsFilter = filter
+    Taro.switchTab({ url: '/pages/records/index' })
+  }
+
+  const handleExport = () => {
+    if (filteredRecords.length === 0) {
+      Taro.showToast({ title: '暂无数据可导出', icon: 'none' })
+      return
+    }
+
+    const range = dateFrom || dateTo
+      ? `${dateFrom || '最早'} ~ ${dateTo || '最新'}`
+      : '全部日期'
+
+    const tempStatusMap: Record<string, string> = {
+      normal: '达标', warning: '偏高', abnormal: '异常'
+    }
+
+    let lines: string[] = []
+    lines.push('═══════════════════════════════════════')
+    lines.push('        冷链验收月度复盘明细')
+    lines.push('═══════════════════════════════════════')
+    lines.push(`统计范围：${range}`)
+    lines.push(`导出时间：${formatDateTime(new Date().toISOString())}`)
+    lines.push('')
+    lines.push('─── 汇总统计 ───')
+    lines.push(`验收总数：${overallStats.total}`)
+    lines.push(`温度达标：${overallStats.normal}  偏高：${overallStats.warning}  异常：${overallStats.abnormal}`)
+    lines.push(`正常接收：${overallStats.accepted}  部分拒收：${overallStats.partialRejected}  待主管确认：${overallStats.pendingSupervisor}`)
+    lines.push(`回传失败：${overallStats.syncFailed}  已回传：${overallStats.synced}`)
+    if (overallStats.total > 0) {
+      lines.push(`温度达标率：${((overallStats.normal / overallStats.total) * 100).toFixed(1)}%`)
+      lines.push(`正常接收率：${((overallStats.accepted / overallStats.total) * 100).toFixed(1)}%`)
+    }
+    lines.push('')
+    lines.push('─── 验收明细 ───')
+
+    filteredRecords.forEach((r, i) => {
+      lines.push(`[${i + 1}] ${r.waybillNo}`)
+      lines.push(`    货品：${r.productName}（${r.productCount}${r.unit}）`)
+      lines.push(`    到店：${formatDateTime(r.actualArrival)}  提交：${formatDateTime(r.submittedAt)}`)
+      lines.push(`    温度：${tempStatusMap[r.overallStatus] || r.overallStatus}  结论：${getConclusionLabel(r.conclusion)}`)
+      lines.push(`    箱数差异：${r.boxDiff > 0 ? '+' : ''}${r.boxDiff}`)
+      if (r.hqCallback) {
+        const disp = r.hqCallback.finalDisposition
+          ? getHqDispositionLabel(r.hqCallback.finalDisposition)
+          : '待处理'
+        lines.push(`    总部：${disp}（${r.hqCallback.confirmNo}）`)
+        if (r.hqCallback.finalDispositionNote) {
+          lines.push(`    说明：${r.hqCallback.finalDispositionNote}`)
+        }
+      }
+      lines.push('')
     })
+
+    const content = lines.join('\n')
+
+    if (process.env.TARO_ENV === 'h5') {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `冷链验收复盘_${range.replace(/\s/g, '')}.txt`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      Taro.showToast({ title: '导出成功', icon: 'success' })
+    } else {
+      Taro.setClipboardData({
+        data: content,
+        success: () => {
+          Taro.showToast({ title: '已复制到剪贴板', icon: 'success' })
+        }
+      })
+    }
   }
 
   return (
@@ -140,15 +211,18 @@ const StatsPage: React.FC = () => {
       </View>
 
       <View className={styles.overviewCard}>
-        <Text className={styles.cardTitle}>
-          <Text className={styles.titleIcon}>📊</Text>
-          汇总统计
-          {(dateFrom || dateTo) && (
-            <Text className={styles.dateHint}>
-              ({dateFrom || '最早'} ~ {dateTo || '最新'})
-            </Text>
-          )}
-        </Text>
+        <View className={styles.cardTitleRow}>
+          <Text className={styles.cardTitle}>
+            <Text className={styles.titleIcon}>📊</Text>
+            汇总统计
+            {(dateFrom || dateTo) && (
+              <Text className={styles.dateHint}>
+                ({dateFrom || '最早'} ~ {dateTo || '最新'})
+              </Text>
+            )}
+          </Text>
+          <Text className={styles.exportBtn} onClick={handleExport}>📥 导出</Text>
+        </View>
 
         <View className={styles.overviewGrid}>
           <View className={styles.overviewItem} onClick={() => handleStatClick('total')}>

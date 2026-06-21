@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { View, Text, ScrollView, Picker } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import Taro, { useDidShow } from '@tarojs/taro'
 import classnames from 'classnames'
 import styles from './index.module.scss'
 import TempStatusBadge from '@/components/TempStatusBadge'
@@ -42,6 +42,29 @@ const RecordsPage: React.FC = () => {
   const retrySync = useReceiptStore(state => state.retrySync)
   const retryAllFailed = useReceiptStore(state => state.retryAllFailed)
   const [retryingId, setRetryingId] = useState<string | null>(null)
+
+  useDidShow(() => {
+    const pendingFilter = (Taro as any).__pendingRecordsFilter as {
+      dateFrom?: string; dateTo?: string;
+      tempStatus?: string; conclusion?: string;
+      syncStatus?: string; onlyAbnormal?: boolean;
+    } | undefined
+
+    if (pendingFilter) {
+      ;(Taro as any).__pendingRecordsFilter = undefined
+      if (pendingFilter.dateFrom) setDateFrom(pendingFilter.dateFrom)
+      if (pendingFilter.dateTo) setDateTo(pendingFilter.dateTo)
+      if (pendingFilter.onlyAbnormal) setOnlyAbnormal(true)
+      if (pendingFilter.conclusion === 'partial_rejected') setActiveFilter('partial_rejected')
+      else if (pendingFilter.conclusion === 'pending_supervisor') setActiveFilter('pending_supervisor')
+      else if (pendingFilter.conclusion === 'accepted') setActiveFilter('accepted')
+      if (pendingFilter.tempStatus === 'abnormal') setActiveFilter('abnormal')
+      else if (pendingFilter.tempStatus === 'warning') setActiveFilter('warning')
+      else if (pendingFilter.tempStatus === 'normal') setActiveFilter('normal')
+      if (pendingFilter.syncStatus === 'failed') setActiveFilter('pending_sync')
+      setShowFilters(true)
+    }
+  })
 
   const searchFilters = useMemo<SearchFilters>(() => {
     const filters: SearchFilters = {

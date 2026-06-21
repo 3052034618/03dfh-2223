@@ -72,6 +72,15 @@ const MinePage: React.FC = () => {
           </View>
           <View
             className={styles.menuItem}
+            onClick={() => Taro.navigateTo({ url: '/pages/reconciliation/index' })}>
+            <View className={styles.menuLeft}>
+              <Text className={styles.menuIcon}>🏢</Text>
+              <Text className={styles.menuText}>总部对账</Text>
+            </View>
+            <Text className={styles.menuArrow}>›</Text>
+          </View>
+          <View
+            className={styles.menuItem}
             onClick={() => handleMenuItemClick('操作指南')}>
             <View className={styles.menuLeft}>
               <Text className={styles.menuIcon}>📖</Text>

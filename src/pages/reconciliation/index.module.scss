@@ -1,0 +1,407 @@
+.container {
+  min-height: 100vh;
+  background: #F5F7FA;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.filterCard {
+  margin: 16rpx 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.filterLabel {
+  font-size: 26rpx;
+  color: #86909C;
+  font-weight: 500;
+}
+
+.groupBtns {
+  display: flex;
+  gap: 12rpx;
+}
+
+.groupBtn {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  background: #F2F3F5;
+  color: #4E5969;
+
+  &.active {
+    background: rgba(22, 93, 255, 0.1);
+    color: #165DFF;
+    font-weight: 500;
+  }
+}
+
+.dateRangeRow {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.dateInput {
+  flex: 1;
+  height: 64rpx;
+  line-height: 64rpx;
+  text-align: center;
+  background: #F7F8FA;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  color: #C9CDD4;
+  border: 1rpx solid #E5E6EB;
+
+  &.dateSelected {
+    color: #1D2129;
+    border-color: #165DFF;
+    background: rgba(22, 93, 255, 0.04);
+  }
+}
+
+.dateSep {
+  font-size: 24rpx;
+  color: #86909C;
+}
+
+.quickDateRow {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.quickDateBtn {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 6rpx;
+  background: #F2F3F5;
+  color: #4E5969;
+}
+
+.quickDateClear {
+  font-size: 22rpx;
+  color: #165DFF;
+  margin-left: auto;
+}
+
+.pendingToggle {
+  margin: 0 24rpx;
+  padding: 20rpx 24rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.pendingToggleIcon {
+  font-size: 20rpx;
+  color: #86909C;
+}
+
+.pendingToggleText {
+  font-size: 26rpx;
+  color: #1D2129;
+  font-weight: 500;
+  flex: 1;
+}
+
+.pendingToggleBadge {
+  font-size: 22rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 10rpx;
+  background: rgba(255, 125, 0, 0.1);
+  color: #FF7D00;
+  font-weight: 500;
+}
+
+.pendingCard {
+  margin: 16rpx 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.pendingSection {
+  margin-bottom: 24rpx;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.pendingTitle {
+  font-size: 26rpx;
+  color: #1D2129;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
+}
+
+.pendingItem {
+  background: #F7F8FA;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 12rpx;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.pendingItemTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.pendingWaybill {
+  font-size: 28rpx;
+  color: #1D2129;
+  font-weight: 600;
+}
+
+.pendingStatus {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+  font-weight: 500;
+}
+
+.pendingProduct {
+  font-size: 24rpx;
+  color: #4E5969;
+  margin-bottom: 8rpx;
+}
+
+.pendingMeta {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 12rpx;
+}
+
+.pendingMetaText {
+  font-size: 22rpx;
+  color: #86909C;
+}
+
+.pendingAction {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 8rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #E5E6EB;
+}
+
+.pendingRetryBtn {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  background: #165DFF;
+  color: #fff;
+  font-weight: 500;
+
+  &.retrying {
+    background: #94BFFF;
+  }
+}
+
+.pendingTimelineBtn {
+  font-size: 24rpx;
+  color: #165DFF;
+}
+
+.summaryCard {
+  margin: 16rpx 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.cardTitle {
+  font-size: 28rpx;
+  color: #1D2129;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.titleIcon {
+  margin-right: 8rpx;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.summaryValue {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1D2129;
+}
+
+.summaryLabel {
+  font-size: 22rpx;
+  color: #86909C;
+}
+
+.batchCard {
+  margin: 0 24rpx 16rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.batchHeader {
+  padding: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.batchInfo {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.batchLabel {
+  font-size: 28rpx;
+  color: #1D2129;
+  font-weight: 600;
+}
+
+.batchCount {
+  font-size: 24rpx;
+  color: #86909C;
+  background: #F2F3F5;
+  padding: 2rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.batchTags {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.batchTag {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+  font-weight: 500;
+}
+
+.expandIcon {
+  font-size: 20rpx;
+  color: #86909C;
+  margin-left: 8rpx;
+}
+
+.batchDetail {
+  padding: 0 24rpx 24rpx;
+  border-top: 1rpx solid #F2F3F5;
+}
+
+.batchRecord {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #F7F8FA;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.batchRecordTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6rpx;
+}
+
+.batchRecordNo {
+  font-size: 26rpx;
+  color: #1D2129;
+  font-weight: 600;
+}
+
+.dispositionTag {
+  font-size: 22rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 6rpx;
+  font-weight: 500;
+}
+
+.batchRecordProduct {
+  font-size: 24rpx;
+  color: #4E5969;
+  margin-bottom: 6rpx;
+}
+
+.batchRecordMeta {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 4rpx;
+}
+
+.batchRecordMetaText {
+  font-size: 22rpx;
+  color: #86909C;
+}
+
+.batchRecordNote {
+  font-size: 22rpx;
+  color: #4E5969;
+  margin-top: 4rpx;
+  line-height: 1.5;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+}
+
+.emptyIcon {
+  font-size: 72rpx;
+  margin-bottom: 16rpx;
+}
+
+.emptyText {
+  font-size: 28rpx;
+  color: #86909C;
+}
